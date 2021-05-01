@@ -4,4 +4,4 @@
 - [ ] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
 - [ ] Refine, refine, refine (optimize the code both stylistically and functionally)
 - [ ] Work on portability (without this step the utility will only be usable on macOS systems)
-- [ ] Work on extra feature (if any)
+- [ ] Work on extra features (if any)
