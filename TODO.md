@@ -1,5 +1,7 @@
 - [x] Prototype the thing to test feasibility
 - [ ] Build the core functionality
+    - [ ] Code up the locksmith
+    - [ ] Code up the tracker
 - [ ] Build the CLI interface
 - [ ] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
 - [ ] Refine, refine, refine (optimize the code both stylistically and functionally)
