@@ -8,8 +8,7 @@ import (
 	"errors"
 )
 
-// Generates the private key and the corresponding private key 
-// for either RSA (4096 bits) or Ed25519.
+// Generates the private key and the corresponding public key for either RSA (4096 bits) or Ed25519.
 func genKeyPair(cipher string) (crypto.PrivateKey, crypto.PublicKey, error) {
 	switch cipher {
 	case "rsa":

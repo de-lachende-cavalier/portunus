@@ -1,6 +1,4 @@
-// tracker contains all the functionality that allows us to correctly track files in various directories,
-// in our case that means tracking files in $HOME/.ssh, but the package has been kept generic enough that
-// it could be applied to any directory in the fs
+// Package tracker contains all the functionality that allows tracking files in various directories..
 package tracker
 
 import (

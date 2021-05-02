@@ -1,3 +1,5 @@
+// Package locksmith is responsible of all the functionality associated with SSH keys (creating new ones,
+// writing them to the correct location and with the correct encoding, etc.)
 package locksmith
 
 import (

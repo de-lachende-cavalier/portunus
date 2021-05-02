@@ -23,7 +23,7 @@ func createTestFiles() []string {
 			return nil
 		}
 
-		_, err = os.Create(path+".pub")
+		_, err = os.Create(path + ".pub")
 		if err != nil {
 			fmt.Println(err)
 			return nil
@@ -37,7 +37,7 @@ func createTestFiles() []string {
 			return nil
 		}
 
-		if _, err := os.Stat(path+".pub"); os.IsNotExist(err) {
+		if _, err := os.Stat(path + ".pub"); os.IsNotExist(err) {
 			fmt.Printf("error creating %s", path)
 			return nil
 		}
@@ -46,6 +46,7 @@ func createTestFiles() []string {
 	return privPaths
 }
 
+// Test the building of absolute paths given a slice of names.
 func Test_buildAbsPaths(t *testing.T) {
 	names := []string{"gonomolo", "hyperion", "super_private"}
 
@@ -67,6 +68,7 @@ func Test_buildAbsPaths(t *testing.T) {
 	}
 }
 
+// Tests standard delition of key files.
 func Test_deleteKeyFiles(t *testing.T) {
 	testPaths := createTestFiles()
 	// reminds me of C...
@@ -86,7 +88,8 @@ func Test_deleteKeyFiles(t *testing.T) {
 	}
 }
 
-func Test_deleteKeyFilesNonExisting(t *testing.T) {
+// Tests deletion of nonexisting key files.
+func Test_deleteKeyFiles_NonExisting(t *testing.T) {
 	testPaths := []string{"/tmp/laiuwetyo93745g", "/tmp/nnnnnnnnnnnnnnnn"}
 
 	err := deleteKeyFiles(testPaths)
@@ -95,7 +98,9 @@ func Test_deleteKeyFilesNonExisting(t *testing.T) {
 	}
 }
 
-func Test_deleteKeyFilesNoPairing(t *testing.T) {
+// Tests deletion of key files where we either only have a private key file or
+// only a public key file.
+func Test_deleteKeyFiles_NoPairing(t *testing.T) {
 	var testPaths []string
 
 	path := "/tmp/onlyprivate"

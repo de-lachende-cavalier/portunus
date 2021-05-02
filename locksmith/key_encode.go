@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// Encodes the RSA private key to valid PEM.
+// Encodes the private key to valid PEM.
 func encodePrivPEM(privKey crypto.PrivateKey) ([]byte, error) {
 	privDER, err := x509.MarshalPKCS8PrivateKey(privKey)
 	if err != nil {
@@ -25,7 +25,7 @@ func encodePrivPEM(privKey crypto.PrivateKey) ([]byte, error) {
 	return privPEM, nil
 }
 
-// Encodes the RSA public key in the format SSH expects.
+// Encodes the public key in the format SSH expects.
 func encodePubSSH(pubKey crypto.PublicKey) ([]byte, error) {
 	pubSSHKey, err := ssh.NewPublicKey(pubKey)
 	if err != nil {

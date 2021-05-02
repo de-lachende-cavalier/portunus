@@ -1,12 +1,13 @@
 package locksmith
 
 import (
-	"testing"
-	"crypto/rsa"
 	"crypto/ed25519"
+	"crypto/rsa"
+	"testing"
 )
 
-func Test_genKeyPairRSA(t *testing.T) {
+// Tests the generation of RSA keys.
+func Test_genKeyPair_RSA(t *testing.T) {
 	privK, pubK, err := genKeyPair("rsa")
 	if err != nil {
 		t.Fatal(err)
@@ -28,11 +29,12 @@ func Test_genKeyPairRSA(t *testing.T) {
 	}
 
 	if (pubRSA.Size() * 8) != 4096 {
-		t.Fatalf("the public RSA key is of the wrong size: expected 4096, got %d", pubRSA.Size() * 8)
+		t.Fatalf("the public RSA key is of the wrong size: expected 4096, got %d", pubRSA.Size()*8)
 	}
 }
 
-func Test_genKeyPairEd25519(t *testing.T) {
+// Tests the generation of Ed25519 keys.
+func Test_genKeyPair_Ed25519(t *testing.T) {
 	privK, pubK, err := genKeyPair("ed25519")
 	if err != nil {
 		t.Fatal(err)
@@ -53,7 +55,8 @@ func Test_genKeyPairEd25519(t *testing.T) {
 	}
 }
 
-func Test_genKeyPairNonExisting(t *testing.T) {
+// Tests the generation of keys for a made up cipher (should faild).
+func Test_genKeyPair_MadeUpCipher(t *testing.T) {
 	privK, pubK, err := genKeyPair("made up cipher")
 
 	if privK != nil {
