@@ -32,7 +32,7 @@ func buildAbsPaths(names []string) ([]string, error) {
 }
 
 // Deletes the key files given as input (both public and private).
-func deleteKeys(pathsToDelete []string) error {
+func deleteKeyFiles(pathsToDelete []string) error {
 	for _, path := range pathsToDelete {
 		err := os.Remove(path) // delete private key
 		if err != nil {

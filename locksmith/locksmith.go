@@ -18,7 +18,7 @@ func ChangeKeys(expired []string, cipher string) (map[string]time.Time, error) {
 		return nil, err
 	}
 
-	err = deleteKeys(expiredPaths)
+	err = deleteKeyFiles(expiredPaths)
 	if err != nil {
 		return nil, err
 	}
