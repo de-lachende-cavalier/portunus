@@ -11,9 +11,13 @@ import (
 //
 // expired is an array of strings containing the filenames of the various private keys (pubkey files
 // have the same name with the .pub extension added).
+//
+// N.B.: ChangeKeys() assumes that all the files it receives as input have expired,
+// checking whether keys have expired or not is up to the tracker package.
 func ChangeKeys(expired []string, cipher string) (map[string]time.Time, error) {
-	var updatedData map[string]time.Time
 	var err error
+
+	updatedData := make(map[string]time.Time)
 
 	expiredPaths, err := buildAbsPaths(expired)
 	if err != nil {
@@ -25,8 +29,8 @@ func ChangeKeys(expired []string, cipher string) (map[string]time.Time, error) {
 		return nil, err
 	}
 
-	for _, file := range expiredPaths {
-		updatedData[file] = time.Now() // set creation date
+	for _, path := range expiredPaths {
+		updatedData[path] = time.Now() // set creation date
 		privKey, pubKey, err := genKeyPair(cipher)
 		if err != nil {
 			return nil, err
@@ -35,12 +39,12 @@ func ChangeKeys(expired []string, cipher string) (map[string]time.Time, error) {
 		privBytes, err := encodePrivPEM(privKey)
 		pubBytes, err := encodePubSSH(pubKey)
 
-		err = writePrivKey(privBytes, file)
+		err = writePrivKey(privBytes, path)
 		if err != nil {
 			return nil, err
 		}
 
-		err = writePubKey(pubBytes, file)
+		err = writePubKey(pubBytes, path)
 		if err != nil {
 			return nil, err
 		}
