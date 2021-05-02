@@ -2,9 +2,9 @@ package locksmith
 
 import (
 	"crypto"
-	"golang.org/x/crypto/ssh"
 	"crypto/x509"
 	"encoding/pem"
+	"golang.org/x/crypto/ssh"
 )
 
 // Encodes the RSA private key to valid PEM.
@@ -27,7 +27,7 @@ func encodePrivPEM(privKey crypto.PrivateKey) ([]byte, error) {
 
 // Encodes the RSA public key in the format SSH expects.
 func encodePubSSH(pubKey crypto.PublicKey) ([]byte, error) {
-	pubSSHKey, err:= ssh.NewPublicKey(pubKey)
+	pubSSHKey, err := ssh.NewPublicKey(pubKey)
 	if err != nil {
 		return nil, err
 	}

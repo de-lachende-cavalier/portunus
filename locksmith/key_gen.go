@@ -8,17 +8,19 @@ import (
 	"errors"
 )
 
+// Generates the private key and the corresponding private key 
+// for either RSA (4096 bits) or Ed25519.
 func genKeyPair(cipher string) (crypto.PrivateKey, crypto.PublicKey, error) {
 	switch cipher {
 	case "rsa":
-		privKey, err := RSAPrivKey()
+		privKey, err := rsaPrivKey()
 		if err != nil {
 			return nil, nil, err
 		}
-		pubKey := privKey.PublicKey
+		pubKey := privKey.Public()
 		return privKey, pubKey, nil
 	case "ed25519":
-		privKey, pubKey, err := ed25519.GenerateKey(rand.Reader)
+		pubKey, privKey, err := ed25519.GenerateKey(rand.Reader)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -28,7 +30,8 @@ func genKeyPair(cipher string) (crypto.PrivateKey, crypto.PublicKey, error) {
 	}
 }
 
-func RSAPrivKey() (*rsa.PrivateKey, error) {
+// Helper function, to keep the genKeyPair() function cleaner.
+func rsaPrivKey() (*rsa.PrivateKey, error) {
 	privKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
 		return nil, err

@@ -8,18 +8,22 @@ import (
 
 // Helper function, creates three random files in /tmp.
 func createTestFiles() []string {
-	var paths []string
-	// XXX for some reason the first file in this array doesn't get created
-	// XXX WTF?
+	var privPaths []string
 	names := []string{"gonomolo", "hyperion", "super_private"}
 	base := "/tmp/"
 
 	for _, name := range names {
-		paths = append(paths, base+name, base+name+".pub")
+		privPaths = append(privPaths, base+name)
 	}
 
-	for _, path := range paths {
+	for _, path := range privPaths {
 		_, err := os.Create(path)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+
+		_, err = os.Create(path+".pub")
 		if err != nil {
 			fmt.Println(err)
 			return nil
@@ -27,14 +31,19 @@ func createTestFiles() []string {
 	}
 
 	// check if the files have actually been created
-	for _, path := range paths {
+	for _, path := range privPaths {
 		if _, err := os.Stat(path); os.IsNotExist(err) {
+			fmt.Printf("error creating %s", path)
+			return nil
+		}
+
+		if _, err := os.Stat(path+".pub"); os.IsNotExist(err) {
 			fmt.Printf("error creating %s", path)
 			return nil
 		}
 	}
 
-	return paths
+	return privPaths
 }
 
 func Test_buildAbsPaths(t *testing.T) {
@@ -75,6 +84,47 @@ func Test_deleteKeyFiles(t *testing.T) {
 			t.Fatalf("failed deleting file %s", path)
 		}
 	}
+}
+
+func Test_deleteKeyFilesNonExisting(t *testing.T) {
+	testPaths := []string{"/tmp/laiuwetyo93745g", "/tmp/nnnnnnnnnnnnnnnn"}
+
+	err := deleteKeyFiles(testPaths)
+	if err == nil {
+		t.Fatal("error should not be nil when deleteKeyFiles() is called with nonexisting files")
+	}
+}
+
+func Test_deleteKeyFilesNoPairing(t *testing.T) {
+	var testPaths []string
+
+	path := "/tmp/onlyprivate"
+	_, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	testPaths = append(testPaths, path)
+
+	err = deleteKeyFiles(testPaths)
+	if err == nil {
+		t.Fatal("error should not be nil when deleteKeyFiles() is called one a single private key file without corresponding pub key file")
+	}
+	os.Remove(path)
+
+	testPaths = nil // reset testPaths
+
+	path = "/tmp/onlypublic.pub"
+	_, err = os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	testPaths = append(testPaths, path)
+
+	err = deleteKeyFiles(testPaths)
+	if err == nil {
+		t.Fatal("error should not be nil when deleteKeyFiles() is called one a single public key file without corresponding private key file")
+	}
+	os.Remove(path)
 }
 
 // No need to check writePubKey and writePrivKey seeing as they're fundamentaly just
