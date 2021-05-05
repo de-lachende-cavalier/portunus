@@ -1,4 +1,4 @@
-package locksmith
+package librarian
 
 import (
 	"fmt"
@@ -50,7 +50,7 @@ func createTestFiles() []string {
 func Test_buildAbsPaths(t *testing.T) {
 	names := []string{"gonomolo", "hyperion", "super_private"}
 
-	absPaths, err := buildAbsPaths(names)
+	absPaths, err := BuildAbsPaths(names)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +76,7 @@ func Test_deleteKeyFiles(t *testing.T) {
 		t.Fatal("testPaths is not supposed to be empty")
 	}
 
-	err := deleteKeyFiles(testPaths)
+	err := DeleteKeyFiles(testPaths)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,7 +92,7 @@ func Test_deleteKeyFiles(t *testing.T) {
 func Test_deleteKeyFiles_NonExisting(t *testing.T) {
 	testPaths := []string{"/tmp/laiuwetyo93745g", "/tmp/nnnnnnnnnnnnnnnn"}
 
-	err := deleteKeyFiles(testPaths)
+	err := DeleteKeyFiles(testPaths)
 	if err == nil {
 		t.Fatal("error should not be nil when deleteKeyFiles() is called with nonexisting files")
 	}
@@ -110,7 +110,7 @@ func Test_deleteKeyFiles_NoPairing(t *testing.T) {
 	}
 	testPaths = append(testPaths, path)
 
-	err = deleteKeyFiles(testPaths)
+	err = DeleteKeyFiles(testPaths)
 	if err == nil {
 		t.Fatal("error should not be nil when deleteKeyFiles() is called one a single private key file without corresponding pub key file")
 	}
@@ -125,7 +125,7 @@ func Test_deleteKeyFiles_NoPairing(t *testing.T) {
 	}
 	testPaths = append(testPaths, path)
 
-	err = deleteKeyFiles(testPaths)
+	err = DeleteKeyFiles(testPaths)
 	if err == nil {
 		t.Fatal("error should not be nil when deleteKeyFiles() is called one a single public key file without corresponding private key file")
 	}

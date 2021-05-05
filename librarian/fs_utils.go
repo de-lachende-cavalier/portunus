@@ -1,4 +1,4 @@
-package locksmith
+package librarian
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 // Builds absolute paths given the filenames of the various private keys.
-func buildAbsPaths(names []string) ([]string, error) {
+func BuildAbsPaths(names []string) ([]string, error) {
 	var b strings.Builder
 	var paths []string
 	home_path := os.Getenv("HOME")
@@ -32,7 +32,7 @@ func buildAbsPaths(names []string) ([]string, error) {
 }
 
 // Deletes the key files given as input (both public and private).
-func deleteKeyFiles(pathsToDelete []string) error {
+func DeleteKeyFiles(pathsToDelete []string) error {
 	for _, path := range pathsToDelete {
 		err := os.Remove(path) // delete private key
 		if err != nil {
@@ -49,7 +49,7 @@ func deleteKeyFiles(pathsToDelete []string) error {
 }
 
 // Writes the public key bytes to the corresponding file.
-func writePubKey(bytes []byte, file string) error {
+func WritePubKey(bytes []byte, file string) error {
 	err := os.WriteFile(file+".pub", bytes, 0644)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func writePubKey(bytes []byte, file string) error {
 }
 
 // Writes the private key bytes to the corresponding file.
-func writePrivKey(bytes []byte, file string) error {
+func WritePrivKey(bytes []byte, file string) error {
 	err := os.WriteFile(file, bytes, 0600)
 	if err != nil {
 		return err

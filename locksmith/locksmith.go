@@ -4,6 +4,8 @@ package locksmith
 
 import (
 	"time"
+
+	"github.com/mowzhja/portunus/librarian"
 )
 
 // Changes keys, deleting the old ones and substituting them with new ones (the names associated
@@ -19,12 +21,12 @@ func ChangeKeys(expired []string, cipher string) (map[string]time.Time, error) {
 
 	updatedData := make(map[string]time.Time)
 
-	expiredPaths, err := buildAbsPaths(expired)
+	expiredPaths, err := librarian.BuildAbsPaths(expired)
 	if err != nil {
 		return nil, err
 	}
 
-	err = deleteKeyFiles(expiredPaths)
+	err = librarian.DeleteKeyFiles(expiredPaths)
 	if err != nil {
 		return nil, err
 	}
@@ -39,12 +41,12 @@ func ChangeKeys(expired []string, cipher string) (map[string]time.Time, error) {
 		privBytes, err := encodePrivPEM(privKey)
 		pubBytes, err := encodePubSSH(pubKey)
 
-		err = writePrivKey(privBytes, path)
+		err = librarian.WritePrivKey(privBytes, path)
 		if err != nil {
 			return nil, err
 		}
 
-		err = writePubKey(pubBytes, path)
+		err = librarian.WritePubKey(pubBytes, path)
 		if err != nil {
 			return nil, err
 		}
