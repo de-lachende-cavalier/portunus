@@ -7,44 +7,34 @@ import (
 	"time"
 )
 
-// Helper function to create some key files in ~/.ssh/
-func createTestKeyFiles() ([]string, []string) {
+// Helper function to create some key files.
+func createTestKeyFiles() []string {
 	var paths []string
 	names := []string{"exp1", "exp2", "exp3"}
-
-	base, err := os.UserHomeDir()
-	if err != nil {
-		fmt.Println(err)
-		return nil, nil
-	}
-	base += "/.ssh/"
+	base := "/tmp/"
 
 	for _, name := range names {
 		_, err := os.Create(base + name)
 		if err != nil {
 			fmt.Println(err)
+			return nil
 		}
 		_, err = os.Create(base + name + ".pub")
 		if err != nil {
 			fmt.Println(err)
+			return nil
 		}
 
 		paths = append(paths, base+name, base+name+".pub")
 	}
 
-	return names, paths
+	return paths
 }
 
 // Helper function, used to clean up the files created for testing.
 func cleanupTestKeyFiles() {
 	names := []string{"exp1", "exp2", "exp3"}
-
-	base, err := os.UserHomeDir()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	base += "/.ssh/"
+	base := "/tmp/"
 
 	for _, name := range names {
 		err := os.Remove(base + name)
@@ -62,9 +52,9 @@ func cleanupTestKeyFiles() {
 func Test_ChangeKeys_RSA(t *testing.T) {
 	oldData := make(map[string]time.Time)
 
-	fileNames, paths := createTestKeyFiles()
-	if fileNames == nil || paths == nil {
-		t.Fatal("fileNames/paths is not supposed to be empty")
+	paths := createTestKeyFiles()
+	if paths == nil {
+		t.Fatal("paths is not supposed to be empty")
 	}
 	defer cleanupTestKeyFiles()
 
@@ -72,7 +62,7 @@ func Test_ChangeKeys_RSA(t *testing.T) {
 		oldData[path] = time.Now()
 	}
 
-	newData, err := ChangeKeys(fileNames, "rsa")
+	newData, err := ChangeKeys(paths, "rsa")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,9 +79,9 @@ func Test_ChangeKeys_RSA(t *testing.T) {
 func Test_ChangeKeys_Ed25519(t *testing.T) {
 	oldData := make(map[string]time.Time)
 
-	fileNames, paths := createTestKeyFiles()
-	if fileNames == nil || paths == nil {
-		t.Fatal("fileNames/paths is not supposed to be empty")
+	paths := createTestKeyFiles()
+	if paths == nil {
+		t.Fatal("paths is not supposed to be empty")
 	}
 	defer cleanupTestKeyFiles()
 
@@ -99,7 +89,7 @@ func Test_ChangeKeys_Ed25519(t *testing.T) {
 		oldData[path] = time.Now()
 	}
 
-	newData, err := ChangeKeys(fileNames, "ed25519")
+	newData, err := ChangeKeys(paths, "ed25519")
 	if err != nil {
 		t.Fatal(err)
 	}
