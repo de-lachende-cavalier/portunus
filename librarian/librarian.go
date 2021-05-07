@@ -1,4 +1,4 @@
-// Package tracker contains all the functionality that allows tracking files in various directories.
+// Package librarian contains all the useful functionality for the interaction with the fs.
 package librarian
 
 import (
@@ -49,25 +49,26 @@ func GetExpired() ([]string, error) {
 }
 
 // Builds absolute paths given the filenames of the various private keys.
-// TODO => what if we pass it absolute paths already? => this function should just
-// return them as is
 func BuildAbsPaths(names []string) ([]string, error) {
 	var b strings.Builder
 	var paths []string
+
 	home_path := os.Getenv("HOME")
 	infix := "/.ssh/"
 
 	for _, name := range names {
-		b.WriteString(home_path)
-		b.WriteString(infix)
-		b.WriteString(name)
+		if !filepath.IsAbs(name) {
+			b.WriteString(home_path)
+			b.WriteString(infix)
+			b.WriteString(name)
 
-		if filepath.IsAbs(b.String()) {
-			paths = append(paths, b.String())
-			b.Reset()
-		} else {
-			err := fmt.Errorf("failed building absolute path for %s (partial result: %s)", name, b.String())
-			return nil, err
+			if filepath.IsAbs(b.String()) {
+				paths = append(paths, b.String())
+				b.Reset()
+			} else {
+				err := fmt.Errorf("failed building absolute path for %s (partial result: %s)", name, b.String())
+				return nil, err
+			}
 		}
 	}
 
