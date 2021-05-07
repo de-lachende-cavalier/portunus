@@ -5,27 +5,44 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/mowzhja/portunus/librarian"
 )
 
 // Helper function to create some key files.
 func createTestKeyFiles() []string {
-	var paths []string
 	names := []string{"exp1", "exp2", "exp3"}
-	base := "/tmp/"
 
-	for _, name := range names {
-		_, err := os.Create(base + name)
+	paths, err := librarian.BuildAbsPaths(names) // test using authentic path
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	for _, path := range paths {
+		_, err := os.Create(path)
 		if err != nil {
 			fmt.Println(err)
 			return nil
 		}
-		_, err = os.Create(base + name + ".pub")
+		_, err = os.Create(path+".pub")
 		if err != nil {
 			fmt.Println(err)
 			return nil
 		}
+	}
 
-		paths = append(paths, base+name, base+name+".pub")
+	// check that files have been properly created
+	for _, path := range paths {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			fmt.Println(err)
+			return nil
+		}
+
+		if _, err := os.Stat(path+".pub"); os.IsNotExist(err) {
+			fmt.Println(err)
+			return nil
+		}
 	}
 
 	return paths
@@ -34,16 +51,23 @@ func createTestKeyFiles() []string {
 // Helper function, used to clean up the files created for testing.
 func cleanupTestKeyFiles() {
 	names := []string{"exp1", "exp2", "exp3"}
-	base := "/tmp/"
 
-	for _, name := range names {
-		err := os.Remove(base + name)
+	paths, err := librarian.BuildAbsPaths(names)
+	if err != nil {
+		fmt.Println(err)
+		return 
+	}
+
+	for _, path := range paths {
+		err := os.Remove(path)
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
-		err = os.Remove(base + name + ".pub")
+		err = os.Remove(path+".pub")
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
 	}
 }

@@ -10,9 +10,9 @@ import (
 	"time"
 )
 
-// Reads the config data relative to key expiration en properly decodes it.
+// Reads the config data relative to key expiration and properly decodes it.
 func readConfig(configFile string) (map[string][2]time.Time, error) {
-	var Map map[string][2]time.Time
+	Map := make(map[string][2]time.Time)
 
 	f, err := os.Open(configFile)
 	if err != nil {
@@ -31,6 +31,7 @@ func readConfig(configFile string) (map[string][2]time.Time, error) {
 // Check key expiration, if the keys have expired return true.
 func GetExpired() ([]string, error) {
 	var expired []string
+
 	configMap, err := readConfig("key_info.gob")
 	if err != nil {
 		return nil, err
@@ -92,7 +93,7 @@ func DeleteKeyFiles(pathsToDelete []string) error {
 
 // Writes the public key bytes to the corresponding file.
 func WritePubKey(bytes []byte, file string) error {
-	err := os.WriteFile(file+".pub", bytes, 0644)
+	err := os.WriteFile(file, bytes, 0644)
 	if err != nil {
 		return err
 	}
