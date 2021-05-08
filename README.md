@@ -1,6 +1,6 @@
 # About
 portunus is a CLI utility for managing the expiration of ssh keys, written in Go.
-It acts as a daemon, periodically checking whether keys have expired and notifying the user, who is then encouraged to regenerate new keys.
+To use it as intended, it should be built and then run with the correct CLI flags directly from your ~/.bashrc (or equivalent) file.
 
 ## About the name...
 [Portunus](https://en.wikipedia.org/wiki/Portunus_(mythology)) was the the Roman god of keys (among other things).

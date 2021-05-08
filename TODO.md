@@ -1,9 +1,8 @@
 - [x] Prototype the thing to test feasibility
-- [ ] Build the core functionality
+- [x] Build the core functionality
     - [x] Code up the locksmith
-    - [ ] Code up the librarian
+    - [x] Code up the librarian
 - [ ] Build the CLI interface
 - [ ] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
 - [ ] Refine, refine, refine (optimize the code both stylistically and functionally)
-- [ ] Work on portability (without this step the utility will only be usable on macOS systems)
 - [ ] Work on extra features (if any)

@@ -28,7 +28,7 @@ func readConfig(configFile string) (map[string][2]time.Time, error) {
 	return Map, nil
 }
 
-// Check key expiration, if the keys have expired return true.
+// Check key expiration, if any have expired return the corresponding paths. 
 func GetExpired() ([]string, error) {
 	var expired []string
 
