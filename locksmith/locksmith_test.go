@@ -3,17 +3,44 @@ package locksmith
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
-
-	"github.com/mowzhja/portunus/librarian"
 )
+
+// Helper, builds absolute paths given the filenames of the various private keys.
+func buildAbsPaths(names []string) ([]string, error) {
+	var b strings.Builder
+	var paths []string
+
+	home_path := os.Getenv("HOME")
+	infix := "/.ssh/"
+
+	for _, name := range names {
+		if !filepath.IsAbs(name) {
+			b.WriteString(home_path)
+			b.WriteString(infix)
+			b.WriteString(name)
+
+			if filepath.IsAbs(b.String()) {
+				paths = append(paths, b.String())
+				b.Reset()
+			} else {
+				err := fmt.Errorf("failed building absolute path for %s (partial result: %s)", name, b.String())
+				return nil, err
+			}
+		}
+	}
+
+	return paths, nil
+}
 
 // Helper function to create some key files.
 func createTestKeyFiles() []string {
 	names := []string{"exp1", "exp2", "exp3"}
 
-	paths, err := librarian.BuildAbsPaths(names) // test using authentic path
+	paths, err := buildAbsPaths(names) // test using authentic path
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -25,7 +52,7 @@ func createTestKeyFiles() []string {
 			fmt.Println(err)
 			return nil
 		}
-		_, err = os.Create(path+".pub")
+		_, err = os.Create(path + ".pub")
 		if err != nil {
 			fmt.Println(err)
 			return nil
@@ -39,7 +66,7 @@ func createTestKeyFiles() []string {
 			return nil
 		}
 
-		if _, err := os.Stat(path+".pub"); os.IsNotExist(err) {
+		if _, err := os.Stat(path + ".pub"); os.IsNotExist(err) {
 			fmt.Println(err)
 			return nil
 		}
@@ -52,10 +79,10 @@ func createTestKeyFiles() []string {
 func cleanupTestKeyFiles() {
 	names := []string{"exp1", "exp2", "exp3"}
 
-	paths, err := librarian.BuildAbsPaths(names)
+	paths, err := buildAbsPaths(names)
 	if err != nil {
 		fmt.Println(err)
-		return 
+		return
 	}
 
 	for _, path := range paths {
@@ -64,7 +91,7 @@ func cleanupTestKeyFiles() {
 			fmt.Println(err)
 			return
 		}
-		err = os.Remove(path+".pub")
+		err = os.Remove(path + ".pub")
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -73,7 +100,7 @@ func cleanupTestKeyFiles() {
 }
 
 // Tests the key changing functionality using RSA.
-func Test_ChangeKeys_RSA(t *testing.T) {
+func Test_RotateKeys_RSA(t *testing.T) {
 	oldData := make(map[string]time.Time)
 
 	paths := createTestKeyFiles()
@@ -86,7 +113,7 @@ func Test_ChangeKeys_RSA(t *testing.T) {
 		oldData[path] = time.Now()
 	}
 
-	newData, err := ChangeKeys(paths, "rsa")
+	newData, err := RotateKeys(paths, "rsa")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +127,7 @@ func Test_ChangeKeys_RSA(t *testing.T) {
 }
 
 // Tests the key changing functionality using Ed25519.
-func Test_ChangeKeys_Ed25519(t *testing.T) {
+func Test_RotateKeys_Ed25519(t *testing.T) {
 	oldData := make(map[string]time.Time)
 
 	paths := createTestKeyFiles()
@@ -113,7 +140,7 @@ func Test_ChangeKeys_Ed25519(t *testing.T) {
 		oldData[path] = time.Now()
 	}
 
-	newData, err := ChangeKeys(paths, "ed25519")
+	newData, err := RotateKeys(paths, "ed25519")
 	if err != nil {
 		t.Fatal(err)
 	}

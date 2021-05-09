@@ -14,9 +14,9 @@ import (
 // expired is an array of strings containing the filenames of the various private keys (pubkey files
 // have the same name with the .pub extension added).
 //
-// N.B.: ChangeKeys() assumes that all the files it receives as input have expired,
+// N.B.: RotateKeys() assumes that all the files it receives as input have expired,
 // checking whether keys have expired happens elsewhere.
-func ChangeKeys(expiredPaths []string, cipher string) (map[string]time.Time, error) {
+func RotateKeys(expiredPaths []string, cipher string) (map[string]time.Time, error) {
 	updatedData := make(map[string]time.Time)
 	var err error
 

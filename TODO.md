@@ -5,4 +5,5 @@
 - [ ] Build the CLI interface
 - [ ] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
 - [ ] Refine, refine, refine (optimize the code both stylistically and functionally)
+- [ ] Put the expiry data in a custom struct instead of using maps (maybe)
 - [ ] Work on extra features (if any)

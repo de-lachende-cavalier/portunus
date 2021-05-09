@@ -46,28 +46,6 @@ func createTestFiles() []string {
 	return privPaths
 }
 
-// Test the building of absolute paths given a slice of names.
-func Test_buildAbsPaths(t *testing.T) {
-	names := []string{"gonomolo", "hyperion", "super_private"}
-
-	absPaths, err := BuildAbsPaths(names)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	base, err := os.UserHomeDir()
-	if err != nil {
-		t.Fatal(err)
-	}
-	base += "/.ssh/"
-
-	for i, absPath := range absPaths {
-		if base+names[i] != absPath {
-			t.Fatalf("failed creating correct path: expected %s, got %s", base+names[i], absPath)
-		}
-	}
-}
-
 // Tests standard delition of key files.
 func Test_deleteKeyFiles(t *testing.T) {
 	testPaths := createTestFiles()
