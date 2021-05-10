@@ -32,14 +32,16 @@ var rotateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		configData := make(map[string][2]time.Time)
 
-		// more or less something like this:
-		paths := librarian.GetAllKeys()
-		name_creation := locksmith.RotateKeys(paths, "ed25519")
+		paths, err := librarian.GetAllKeys()
+		// TODO the cipher should be specified by a user flag
+		partialData, err := locksmith.RotateKeys(paths, "ed25519")
 
-		configData = makeProperMapToStoreInConfig(name_creation)
-		err := librarian.WriteConfig(configData)
+		configData = makeProperMapToStoreInConfig(partialData) // add expiration date to the name and the creation date contained in partialData
+
+		err = librarian.WriteConfig(configData)
 		if err != nil {
-			// handle it
+			fmt.Println(err)
+			return
 		}
 	},
 }

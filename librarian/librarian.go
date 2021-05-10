@@ -4,6 +4,7 @@ package librarian
 import (
 	"encoding/gob"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -27,8 +28,58 @@ func ReadConfig() (map[string][2]time.Time, error) {
 	return Map, nil
 }
 
-// Gets all keys stored in ~/.ssh/.
-func GetAllKeys() {
+// Writes config data to the proper file with the proper encoding (gob).
+func WriteConfig(data map[string][2]time.Time) error {
+	file, err := os.Open(configFile)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	e := gob.NewEncoder(file)
+
+	err = e.Encode(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Gets all keys stored in ~/.ssh/ and returns the paths corresponding to the private ones.
+func GetAllKeys() ([]string, error) {
+	var paths []string
+	dir := os.Getenv("HOME") + ".ssh/"
+
+	isValid := func(s string) bool {
+		if strings.Contains(s, "authorized_keys") ||
+			strings.Contains(s, "known_hosts") ||
+			strings.HasSuffix(s, ".pub") ||
+			strings.HasPrefix(s, ".") {
+			return false
+		}
+
+		return true
+	}
+
+	d, err := os.Open(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	keyFiles, err := d.Readdir(-1) // read all
+	if err != nil {
+		return nil, err
+	}
+	d.Close()
+
+	for _, file := range keyFiles {
+		if isValid(file.Name()) {
+			paths = append(paths, file.Name())
+		}
+	}
+
+	return paths, nil
 }
 
 // Check key expiration, if any have expired return the corresponding paths.
@@ -81,24 +132,6 @@ func WritePubKey(bytes []byte, file string) error {
 // Writes the private key bytes to the corresponding file.
 func WritePrivKey(bytes []byte, file string) error {
 	err := os.WriteFile(file, bytes, 0600)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Writes config data to the proper file with the proper encoding (gob).
-func WriteConfig(data map[string][2]time.Time) error {
-	file, err := os.Open(configFile)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	e := gob.NewEncoder(file)
-
-	err = e.Encode(data)
 	if err != nil {
 		return err
 	}
