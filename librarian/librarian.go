@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var configFile = os.Getenv("HOME") + ".portunus_data.gob"
+var configFile = os.Getenv("HOME") + "/.portunus_data.gob"
 
 // Reads the config data relative to key expiration and properly decodes it.
 func ReadConfig() (map[string][2]time.Time, error) {

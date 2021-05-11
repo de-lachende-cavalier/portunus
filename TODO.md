@@ -3,6 +3,7 @@
     - [x] Code up the locksmith
     - [x] Code up the librarian
 - [ ] Build the CLI interface
+- [ ] Make a function to handle tests in one line (be DRY)
 - [ ] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
 - [ ] Refine, refine, refine (optimize the code both stylistically and functionally)
 - [ ] Put the expiry data in a custom struct instead of using maps (maybe)
