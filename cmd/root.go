@@ -1,7 +1,13 @@
 package cmd
 
 import (
+	"os"
+	"time"
+	"fmt"
+
 	"github.com/spf13/cobra"
+
+	"github.com/mowzhja/portunus/librarian"
 )
 
 var rootCmd = &cobra.Command{
@@ -13,8 +19,27 @@ var rootCmd = &cobra.Command{
    to either change them (delete the old ones and make new ones) or to renew them (delay 
    their expiration by some amount you specify).`,
 
-	// TODO make a run here that checks whether some keys were deleted from .ssh, and if
-	// so remove those keys from the ones tracked
 	Run: func(cmd *cobra.Command, args []string) {
+		newConfig := make(map[string][2]time.Time)
+
+		curConfig, err := librarian.ReadConfig()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		for keyFile, times := range curConfig {
+			if _, err := os.Stat(keyFile); err == nil {
+				// keyFile still exists
+				newConfig[keyFile] = times
+			}
+		}
+
+		// override old config
+		err = librarian.WriteConfig(newConfig)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	},
 }
