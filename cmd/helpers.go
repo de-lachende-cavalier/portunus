@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -39,9 +40,7 @@ func parseTime(usr_input string) (int, error) {
 
 		return n * 86400, nil
 	default:
-		err := fmt.Errorf("Wrong format, %s not recognized.", specifier)
-
-		return 0, err
+		return 0, errors.New("error in specifer, either not recognized or not specified")
 	}
 }
 
@@ -69,6 +68,8 @@ func buildPaths(fileNames []string) []string {
 		if !filepath.IsAbs(name) {
 			prefix := os.Getenv("HOME") + "/.ssh/"
 			filePaths = append(filePaths, prefix+name)
+		} else {
+			filePaths = append(filePaths, name)
 		}
 	}
 
