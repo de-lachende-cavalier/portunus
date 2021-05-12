@@ -21,10 +21,7 @@ var checkCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		expiredPaths, err := librarian.GetExpiredKeys()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		handleErr(err)
 
 		if len(expiredPaths) > 0 {
 			// we have expired keys

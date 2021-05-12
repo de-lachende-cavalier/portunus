@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"time"
-	"fmt"
 
 	"github.com/spf13/cobra"
 
