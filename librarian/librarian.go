@@ -3,12 +3,25 @@ package librarian
 
 import (
 	"encoding/gob"
+	"fmt"
 	"os"
 	"strings"
 	"time"
 )
 
 var configFile = os.Getenv("HOME") + "/.portunus_data.gob"
+
+// Tests the data to write in the config file for validity.
+func testConfigData(data map[string][2]time.Time) error {
+	for file, times := range data {
+		if times[0].Sub(times[1]) >= 0 {
+			err := fmt.Errorf("creation time >= expiration time for file %s!", file)
+			return err
+		}
+	}
+
+	return nil
+}
 
 // Reads the config data relative to key expiration and properly decodes it.
 func ReadConfig() (map[string][2]time.Time, error) {
@@ -20,6 +33,7 @@ func ReadConfig() (map[string][2]time.Time, error) {
 	}
 
 	d := gob.NewDecoder(f)
+
 	err = d.Decode(&Map)
 	if err != nil {
 		return nil, err
@@ -29,8 +43,17 @@ func ReadConfig() (map[string][2]time.Time, error) {
 }
 
 // Writes config data to the proper file with the proper encoding (gob).
+//
+// If the file doesn't exist already, it gets created. Data is checked for validity
+// before being written.
 func WriteConfig(data map[string][2]time.Time) error {
-	file, err := os.Open(configFile)
+	if err := testConfigData(data); err != nil {
+		return err
+	}
+
+	// create file if it doesn't already exist
+	// truncate it before writing
+	file, err := os.OpenFile(configFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
@@ -49,11 +72,12 @@ func WriteConfig(data map[string][2]time.Time) error {
 // Gets all keys stored in ~/.ssh/ and returns the paths corresponding to the private ones.
 func GetAllKeys() ([]string, error) {
 	var paths []string
-	dir := os.Getenv("HOME") + ".ssh/"
+	dir := os.Getenv("HOME") + "/.ssh/"
 
 	isValid := func(s string) bool {
 		if strings.Contains(s, "authorized_keys") ||
 			strings.Contains(s, "known_hosts") ||
+			strings.Contains(s, "config") ||
 			strings.HasSuffix(s, ".pub") ||
 			strings.HasPrefix(s, ".") {
 			return false
@@ -67,7 +91,7 @@ func GetAllKeys() ([]string, error) {
 		return nil, err
 	}
 
-	keyFiles, err := d.Readdir(-1) // read all
+	keyFiles, err := d.Readdir(-1) // read all the files
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +99,7 @@ func GetAllKeys() ([]string, error) {
 
 	for _, file := range keyFiles {
 		if isValid(file.Name()) {
-			paths = append(paths, file.Name())
+			paths = append(paths, dir+file.Name())
 		}
 	}
 

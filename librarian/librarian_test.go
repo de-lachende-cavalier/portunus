@@ -3,6 +3,10 @@ package librarian
 import (
 	"fmt"
 	"os"
+	"reflect"
+	s "strings"
+	"time"
+
 	"testing"
 )
 
@@ -46,7 +50,141 @@ func createTestFiles() []string {
 	return privPaths
 }
 
-// Tests standard delition of key files.
+// Tests reading and writing of the config file, if we use valid data.
+func Test_readWriteConfig_ValidData(t *testing.T) {
+	curConfig := make(map[string][2]time.Time)
+
+	curConfig["hello"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(44 * time.Minute).Round(0)}
+	curConfig["friend"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(10 * time.Second).Round(0)}
+	curConfig["leave"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(3 * time.Hour).Round(0)}
+
+	err := WriteConfig(curConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	readConfig, err := ReadConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(curConfig, readConfig) {
+		t.Fatalf("the config data written and the data read don't match up: expected %q, got %q", curConfig, readConfig)
+	}
+
+	// clean up
+	err = os.Remove(configFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Tests reading and writing of the config file, if we use invalid data.
+func Test_readWriteConfig_InvalidData(t *testing.T) {
+	invalidConfig := make(map[string][2]time.Time)
+
+	invalidConfig["lol"] = [2]time.Time{time.Now().Add(1 * time.Second), time.Now()}
+
+	err := WriteConfig(invalidConfig)
+	if err == nil {
+		t.Fatal("expected error on invalid config data, but no error was returned")
+	}
+}
+
+// Tests fetching all the private key files in ~/.ssh/.
+func Test_getAllKeys(t *testing.T) {
+	var paths []string
+
+	prefix, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	prefix += "/.ssh/"
+
+	names := []string{"no", "no.pub", "authorized_keys", ".dontreadme", "yes", "yes.pub"}
+	for _, name := range names {
+		paths = append(paths, prefix+name)
+	}
+
+	for _, path := range paths {
+		_, err := os.Create(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	readPaths, err := GetAllKeys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count := 0
+	for _, rp := range readPaths {
+		if s.Contains(rp, "authorized_keys") || s.Contains(rp, ".dontreadme") {
+			t.Fatalf("unexpected file has been read: %s", rp)
+		} else if s.Contains(rp, "no") || s.Contains(rp, "yes") {
+			count += 1
+		}
+
+		// clean up
+		if !s.Contains(rp, "id_ed25") {
+			err := os.Remove(rp)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			os.Remove(rp + ".pub") // remove the pub keys as well, throw away errors
+		}
+	}
+
+	if count < 2 {
+		t.Fatalf("expected both no and yes to be among the paths returned, got %s", readPaths)
+	}
+}
+
+// Tests the fetching of expired keys.
+func Test_getExpiredKeys(t *testing.T) {
+	curConfig := make(map[string][2]time.Time)
+
+	curConfig["hello"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(1 * time.Second).Round(0)}
+	curConfig["friend"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(22 * time.Hour).Round(0)}
+	curConfig["leave"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(2 * time.Minute).Round(0)}
+
+	err := WriteConfig(curConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// to make sure only "hello" expires (so only "hello" is returned by GetExpiredKeys())
+	time.Sleep(2 * time.Second)
+
+	expired, err := GetExpiredKeys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(expired) != 1 {
+		t.Fatalf("wrong length for returned array: expected 1, got %d", len(expired))
+	}
+
+	if expired[0] != "hello" {
+		t.Fatalf("wrong file name: expected hello, got %s", expired[0])
+	}
+
+	// clean up
+	err = os.Remove(configFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Tests standard deletion of key files.
 func Test_deleteKeyFiles(t *testing.T) {
 	testPaths := createTestFiles()
 	// reminds me of C...
