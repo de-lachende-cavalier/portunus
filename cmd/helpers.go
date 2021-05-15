@@ -51,8 +51,8 @@ func getCompleteConfig(partialConfig map[string]time.Time, expirationDelta int) 
 	for keyFile, creationTime := range partialConfig {
 		times := [2]time.Time{}
 
-		times[0] = creationTime
-		times[1] = creationTime.Add(time.Second * time.Duration(expirationDelta)) // expiration time
+		times[0] = creationTime.Round(0)
+		times[1] = creationTime.Add(time.Second * time.Duration(expirationDelta)).Round(0) // expiration time
 
 		completeConfig[keyFile] = times
 	}

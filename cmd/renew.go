@@ -18,39 +18,41 @@ func init() {
 	renewCmd.MarkFlagRequired("time")
 }
 
+// Helper function to use instead of the default anonymous function associated with Command.Run().
+func runRenewCmd(cmd *cobra.Command, args []string) {
+	expData := make(map[string][2]time.Time)
+
+	expData, err := librarian.ReadConfig()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	delta_s, err := cmd.Flags().GetString("time")
+
+	delta_i, err := parseTime(delta_s)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, times := range expData {
+		times[1] = times[1].Add(time.Second * time.Duration(delta_i)).Round(0)
+	}
+
+	err = librarian.WriteConfig(expData)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("The keys have been succesfully renewed")
+}
+
 var renewCmd = &cobra.Command{
 	Use:   "renew",
 	Short: "renews the expiry on all the tracked keys",
 	Long: `There's no need to specify which keys
   to renew: it automatically renews all the ones it tracks.`,
-
-	Run: func(cmd *cobra.Command, args []string) {
-		expData := make(map[string][2]time.Time)
-
-		expData, err := librarian.ReadConfig()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		delta_s, err := cmd.Flags().GetString("time")
-
-		delta_i, err := parseTime(delta_s)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		for _, times := range expData {
-			times[1] = times[1].Add(time.Second * time.Duration(delta_i))
-		}
-
-		err = librarian.WriteConfig(expData)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		fmt.Println("The keys have been succesfully renewed")
-	},
+	Run: runRenewCmd,
 }

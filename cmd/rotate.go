@@ -20,6 +20,40 @@ func init() {
 	rotateCmd.MarkFlagRequired("time")
 }
 
+// Helper function to use instead of the default anonymous function associated with Command.Run().
+func runRotateCmd(cmd *cobra.Command, args []string) {
+	configData := make(map[string][2]time.Time)
+	partialData := make(map[string]time.Time)
+
+	cipher, err := cmd.Flags().GetString("cipher")
+	handleErr(err)
+
+	delta_s, err := cmd.Flags().GetString("time")
+	handleErr(err)
+
+	delta_i, err := parseTime(delta_s)
+	handleErr(err)
+
+	targetFiles, err := cmd.Flags().GetStringSlice("subset")
+	handleErr(err)
+
+	if len(targetFiles) > 0 {
+		targetPaths := buildPaths(targetFiles)
+		partialData, err = locksmith.RotateKeys(targetPaths, cipher)
+		handleErr(err)
+	} else {
+		paths, err := librarian.GetAllKeys()
+		handleErr(err)
+		partialData, err = locksmith.RotateKeys(paths, cipher)
+		handleErr(err)
+	}
+
+	configData = getCompleteConfig(partialData, delta_i)
+
+	err = librarian.WriteConfig(configData)
+	handleErr(err)
+}
+
 var rotateCmd = &cobra.Command{
 	Use:   "rotate",
 	Short: "rotate the SSH keys",
@@ -27,37 +61,5 @@ var rotateCmd = &cobra.Command{
   By 'rotates' I mean that the old keys are deleted and new ones are created (with the
   same name as the old ones), with new expiration dates. Once that's done, these keys
 	are tracked for as long as they exist.`,
-
-	Run: func(cmd *cobra.Command, args []string) {
-		configData := make(map[string][2]time.Time)
-		partialData := make(map[string]time.Time)
-
-		cipher, err := cmd.Flags().GetString("cipher")
-		handleErr(err)
-
-		delta_s, err := cmd.Flags().GetString("time")
-		handleErr(err)
-
-		delta_i, err := parseTime(delta_s)
-		handleErr(err)
-
-		targetFiles, err := cmd.Flags().GetStringSlice("subset")
-		handleErr(err)
-
-		if len(targetFiles) > 0 {
-			targetPaths := buildPaths(targetFiles)
-			partialData, err = locksmith.RotateKeys(targetPaths, cipher)
-			handleErr(err)
-		} else {
-			paths, err := librarian.GetAllKeys()
-			handleErr(err)
-			partialData, err = locksmith.RotateKeys(paths, cipher)
-			handleErr(err)
-		}
-
-		configData = getCompleteConfig(partialData, delta_i)
-
-		err = librarian.WriteConfig(configData)
-		handleErr(err)
-	},
+	Run: runRotateCmd,
 }
