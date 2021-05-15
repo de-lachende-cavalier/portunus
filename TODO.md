@@ -7,7 +7,7 @@
 - [ ] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
     - [x] Complete writing unit tests
     - [ ] Write integration tests/test Cobra commands
-- [ ] Fix the monotonic clock reading problem (use .Round(0) when writing times to files, check the librarian_test.go)
+- [x] Fix the monotonic clock reading problem (use .Round(0) when writing times to files, check the librarian_test.go)
 - [ ] Look into using colored print for extra coolness (https://github.com/fatih/color)
 - [ ] Refine, refine, refine (optimize the code both stylistically and functionally)
     - [ ] Look into splitting up librarian.go
