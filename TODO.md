@@ -4,9 +4,9 @@
     - [x] Code up the librarian
 - [x] Build the CLI interface
 - [x] Make a function to handle tests in one line (be DRY)
-- [ ] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
+- [x] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
     - [x] Complete writing unit tests
-    - [ ] Write integration tests/test Cobra commands
+    - [x] Write integration tests/test Cobra commands
 - [x] Fix the monotonic clock reading problem (use .Round(0) when writing times to files, check the librarian_test.go)
 - [ ] Look into using colored print for extra coolness (https://github.com/fatih/color)
 - [ ] Refine, refine, refine (optimize the code both stylistically and functionally)

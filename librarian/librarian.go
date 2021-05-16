@@ -12,7 +12,7 @@ import (
 var configFile = os.Getenv("HOME") + "/.portunus_data.gob"
 
 // Tests the data to write in the config file for validity.
-func testConfigData(data map[string][2]time.Time) error {
+func checkConfigData(data map[string][2]time.Time) error {
 	for file, times := range data {
 		if times[0].Sub(times[1]) >= 0 {
 			err := fmt.Errorf("creation time >= expiration time for file %s!", file)
@@ -31,6 +31,7 @@ func ReadConfig() (map[string][2]time.Time, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 
 	d := gob.NewDecoder(f)
 
@@ -47,7 +48,7 @@ func ReadConfig() (map[string][2]time.Time, error) {
 // If the file doesn't exist already, it gets created. Data is checked for validity
 // before being written.
 func WriteConfig(data map[string][2]time.Time) error {
-	if err := testConfigData(data); err != nil {
+	if err := checkConfigData(data); err != nil {
 		return err
 	}
 

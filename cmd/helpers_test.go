@@ -69,17 +69,19 @@ func Test_parseTime_InvalidSpecifier(t *testing.T) {
 func Test_getCompleteConfig(t *testing.T) {
 	testPartialConfig := make(map[string]time.Time)
 
-	testPartialConfig["hello"] = time.Now()
-	testPartialConfig["there"] = time.Now().Add(3 * time.Second)
-	testPartialConfig["friend"] = time.Now().Add(33 * time.Minute)
+	testPartialConfig["hello"] = time.Now().Round(0)
+	testPartialConfig["there"] = time.Now().Add(3 * time.Second).Round(0)
+	testPartialConfig["friend"] = time.Now().Add(33 * time.Minute).Round(0)
 
 	testCompleteConfig := getCompleteConfig(testPartialConfig, 3600)
 
+	// test creation times
 	for f, times := range testCompleteConfig {
 		if testCompleteConfig[f][0] != testPartialConfig[f] {
 			t.Fatalf("creation time should be the same (%q != %q)", times[0], testPartialConfig[f])
 		}
 
+		// test expiration times
 		if testCompleteConfig[f][1] != testPartialConfig[f].Add(3600*time.Second) {
 			t.Fatalf("expiration time incorrectly incremented: should be %q, is %q", testPartialConfig[f].Add(3600*time.Second), times[1])
 		}

@@ -9,12 +9,15 @@ import (
 	"github.com/mowzhja/portunus/librarian"
 )
 
-// Helper function to use instead of the default anonymous function associated with Command.Run().
-func runRootCmd(cmd *cobra.Command, args []string) {
+// Check the integrity of the config file each time portunus is called.
+func init() {
 	newConfig := make(map[string][2]time.Time)
 
 	curConfig, err := librarian.ReadConfig()
-	handleErr(err)
+	if err != nil {
+		// config file either doesn't exist or is empty => no need to check anything
+		return
+	}
 
 	for keyFile, times := range curConfig {
 		if _, err := os.Stat(keyFile); err == nil {
@@ -36,7 +39,8 @@ var rootCmd = &cobra.Command{
    ssh-keygen cannot do. Once the keys have expired, portunus will notify you and prompt 
    to either change them (delete the old ones and make new ones) or to renew them (delay 
    their expiration by some amount you specify).`,
-	Run: runRootCmd,
+	Run: func(cmd *cobra.Command, args []string) {
+	},
 }
 
 // Entry point for main.

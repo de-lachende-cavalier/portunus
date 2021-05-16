@@ -8,6 +8,8 @@ import (
 	sc "strconv"
 	s "strings"
 	"time"
+
+	"github.com/mowzhja/portunus/librarian"
 )
 
 // Parses the time spec given by the user and return the number of seconds corresponding to it.
@@ -50,7 +52,6 @@ func getCompleteConfig(partialConfig map[string]time.Time, expirationDelta int) 
 
 	for keyFile, creationTime := range partialConfig {
 		times := [2]time.Time{}
-
 		times[0] = creationTime.Round(0)
 		times[1] = creationTime.Add(time.Second * time.Duration(expirationDelta)).Round(0) // expiration time
 
@@ -82,4 +83,38 @@ func handleErr(err error) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+// Helper for tests that need to read some data from the portunus_data.gob file.
+func writeTestConfig() (map[string][2]time.Time, error) {
+	curConfig := make(map[string][2]time.Time)
+
+	_, err := os.Create(os.Getenv("HOME") + "/.portunus_data.gob")
+	if err != nil {
+		return nil, err
+	}
+
+	curConfig["hello"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(1 * time.Second).Round(0)}
+	curConfig["friend"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(22 * time.Hour).Round(0)}
+	curConfig["leave"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(3 * time.Minute).Round(0)}
+
+	err = librarian.WriteConfig(curConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return curConfig, nil
+}
+
+// Helper to cleanup the test data from the portunus_data.gob file.
+func cleanupTestConfig() error {
+	err := os.Remove(os.Getenv("HOME") + "/.portunus_data.gob")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -18,40 +18,7 @@ func init() {
 	rotateCmd.Flags().StringSliceP("subset", "s", []string{}, "Specify the subset of keys you want to act on")
 
 	rotateCmd.MarkFlagRequired("time")
-}
-
-// Helper function to use instead of the default anonymous function associated with Command.Run().
-func runRotateCmd(cmd *cobra.Command, args []string) {
-	configData := make(map[string][2]time.Time)
-	partialData := make(map[string]time.Time)
-
-	cipher, err := cmd.Flags().GetString("cipher")
-	handleErr(err)
-
-	delta_s, err := cmd.Flags().GetString("time")
-	handleErr(err)
-
-	delta_i, err := parseTime(delta_s)
-	handleErr(err)
-
-	targetFiles, err := cmd.Flags().GetStringSlice("subset")
-	handleErr(err)
-
-	if len(targetFiles) > 0 {
-		targetPaths := buildPaths(targetFiles)
-		partialData, err = locksmith.RotateKeys(targetPaths, cipher)
-		handleErr(err)
-	} else {
-		paths, err := librarian.GetAllKeys()
-		handleErr(err)
-		partialData, err = locksmith.RotateKeys(paths, cipher)
-		handleErr(err)
-	}
-
-	configData = getCompleteConfig(partialData, delta_i)
-
-	err = librarian.WriteConfig(configData)
-	handleErr(err)
+	rotateCmd.MarkFlagRequired("cipher")
 }
 
 var rotateCmd = &cobra.Command{
@@ -62,4 +29,37 @@ var rotateCmd = &cobra.Command{
   same name as the old ones), with new expiration dates. Once that's done, these keys
 	are tracked for as long as they exist.`,
 	Run: runRotateCmd,
+}
+
+// Helper function to use instead of the default anonymous function associated with Command.Run().
+func runRotateCmd(cmd *cobra.Command, args []string) {
+	var paths []string
+
+	configData := make(map[string][2]time.Time)
+	partialData := make(map[string]time.Time)
+
+	cipher, err := cmd.Flags().GetString("cipher")
+	handleErr(err)
+
+	delta_s, err := cmd.Flags().GetString("time")
+	handleErr(err)
+	delta_i, err := parseTime(delta_s)
+	handleErr(err)
+
+	targetFiles, err := cmd.Flags().GetStringSlice("subset")
+	handleErr(err)
+
+	if len(targetFiles) > 0 {
+		paths = buildPaths(targetFiles)
+	} else {
+		paths, err = librarian.GetAllKeys()
+		handleErr(err)
+	}
+
+	partialData, err = locksmith.RotateKeys(paths, cipher)
+	handleErr(err)
+
+	configData = getCompleteConfig(partialData, delta_i)
+	err = librarian.WriteConfig(configData)
+	handleErr(err)
 }
