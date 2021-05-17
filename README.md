@@ -11,5 +11,4 @@ To use it as intended, it should be built and then run with the correct CLI flag
 
 ## Useful references
 - [Generate SSH keypair in native Go](https://gist.github.com/devinodaniel/8f9b8a4f31573f428f29ec0e884e6673)
-- [Four Steps to Daemonize Your Go Programs](https://ieftimov.com/post/four-steps-daemonize-your-golang-programs/)
 - [Cobra.dev](https://cobra.dev/)
