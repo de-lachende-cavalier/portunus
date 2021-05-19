@@ -1,40 +1,30 @@
 package locksmith
 
 import (
-	"crypto"
-	"crypto/ed25519"
-	"crypto/rand"
-	"crypto/rsa"
+	"os/exec"
 	"errors"
 )
 
-// Generates the private key and the corresponding public key for either RSA (4096 bits) or Ed25519.
-func genKeyPair(cipher string) (crypto.PrivateKey, crypto.PublicKey, error) {
+// Wrapper around ssh-keygen, generates private/public key pair with the given password.
+//
+// N.B.: It is imperative that the file identified by path doesn't exist!
+func genKeyPair(cipher string, passwd string, path string) error {
+	// XXX the number of rounds was set to a mostly arbitrary value (i tested a
+	// XXX bunch of them and found that 50 is reasonably fast)
+	args := []string{"-q", "-t", cipher, "-N", passwd, "-f", path, "-a", "50"}
+
 	switch cipher {
 	case "rsa":
-		privKey, err := rsaPrivKey()
-		if err != nil {
-			return nil, nil, err
-		}
-		pubKey := privKey.Public()
-		return privKey, pubKey, nil
+		args = append(args, "-b", "4096")
+		return execCommand(args...)
 	case "ed25519":
-		pubKey, privKey, err := ed25519.GenerateKey(rand.Reader)
-		if err != nil {
-			return nil, nil, err
-		}
-		return privKey, pubKey, nil
+		return execCommand(args...)
 	default:
-		return nil, nil, errors.New("Cipher not supported.")
+		return errors.New("Cipher not supported.")
 	}
 }
 
-// Helper function, to keep the genKeyPair() function cleaner.
-func rsaPrivKey() (*rsa.PrivateKey, error) {
-	privKey, err := rsa.GenerateKey(rand.Reader, 4096)
-	if err != nil {
-		return nil, err
-	}
-
-	return privKey, nil
+// Helper function, to separate command execution from the definition of the various flags.
+func execCommand(args ...string) error {
+    return exec.Command("ssh-keygen", args...).Run()
 }

@@ -9,6 +9,7 @@
     - [x] Write integration tests/test Cobra commands
 - [x] Fix the monotonic clock reading problem (use .Round(0) when writing times to files, check the librarian_test.go)
 - [ ] Throw away Go key generation => automate ssh-keygen!
+- [ ] Notify the user of what portunus is doing at times (aka more prints and such)
 - [ ] Look into using colored print for extra coolness (https://github.com/fatih/color)
 - [ ] Refine, refine, refine (optimize the code both stylistically and functionally)
     - [ ] Look into splitting up librarian.go
