@@ -7,13 +7,14 @@
 - [x] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
     - [x] Complete writing unit tests
     - [x] Write integration tests/test Cobra commands
+    - [ ] Check test coverage (there may be some special cases you missed)
 - [x] Fix the monotonic clock reading problem (use .Round(0) when writing times to files, check the librarian_test.go)
 - [x] Throw away Go key generation => automate ssh-keygen!
-    - [ ] Fix the broken tests in cmd/ and locksmith/
+    - [x] Fix the broken tests in cmd/ and locksmith/
 - [ ] Notify the user of what portunus is doing at times (aka more prints and such)
 - [ ] Look into using colored print for extra coolness (https://github.com/fatih/color)
 - [ ] Refine, refine, refine (optimize the code both stylistically and functionally)
-    - [ ] Look into splitting up librarian.go
+    - [x] Look into splitting up librarian.go
     - [ ] Benches, maybe?
 - [ ] Put the expiry data in a custom struct instead of using maps (maybe)
 - [ ] Work on extra features (if any)

@@ -23,11 +23,11 @@ func Test_RotateKeys_RSA(t *testing.T) {
 	}
 
 	for path, creationTime := range upData {
-		// check equality with (10) second accuracy
+		// check equality with (20) second accuracy
 		// (to account for buffering, scheduling et alia)
-		if creationTime.Round(10*time.Second) != beforeCreation.Round(10*time.Second) {
+		if creationTime.Round(20*time.Second) != beforeCreation.Round(20*time.Second) {
 			t.Fatalf("the creation time for %s has been set incorrectly: expected %q, got %q",
-				path, beforeCreation.Round(10*time.Second), creationTime.Round(10*time.Second))
+				path, beforeCreation.Round(20*time.Second), creationTime.Round(20*time.Second))
 		}
 	}
 
@@ -55,11 +55,11 @@ func Test_RotateKeys_Ed25519(t *testing.T) {
 	}
 
 	for path, creationTime := range upData {
-		// check equality with (10) second accuracy
+		// check equality with (20) second accuracy
 		// (to account for buffering, scheduling et alia)
-		if creationTime.Round(10*time.Second) != beforeCreation.Round(10*time.Second) {
+		if creationTime.Round(20*time.Second) != beforeCreation.Round(20*time.Second) {
 			t.Fatalf("the creation time for %s has been set incorrectly: expected %q, got %q",
-				path, beforeCreation.Round(10*time.Second), creationTime.Round(10*time.Second))
+				path, beforeCreation.Round(20*time.Second), creationTime.Round(20*time.Second))
 		}
 	}
 

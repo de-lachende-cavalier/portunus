@@ -1,98 +1,12 @@
 package librarian
 
 import (
-	"fmt"
 	"os"
-	"reflect"
 	s "strings"
 	"time"
 
 	"testing"
 )
-
-// Helper function, creates three random files in /tmp.
-func createTestFiles() []string {
-	var privPaths []string
-	names := []string{"gonomolo", "hyperion", "super_private"}
-	base := "/tmp/"
-
-	for _, name := range names {
-		privPaths = append(privPaths, base+name)
-	}
-
-	for _, path := range privPaths {
-		_, err := os.Create(path)
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		}
-
-		_, err = os.Create(path + ".pub")
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		}
-	}
-
-	// check if the files have actually been created
-	for _, path := range privPaths {
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			fmt.Printf("error creating %s", path)
-			return nil
-		}
-
-		if _, err := os.Stat(path + ".pub"); os.IsNotExist(err) {
-			fmt.Printf("error creating %s", path)
-			return nil
-		}
-	}
-
-	return privPaths
-}
-
-// Tests reading and writing of the config file, if we use valid data.
-func Test_readWriteConfig_ValidData(t *testing.T) {
-	curConfig := make(map[string][2]time.Time)
-
-	curConfig["hello"] = [2]time.Time{time.Now().Round(0),
-		time.Now().Add(44 * time.Minute).Round(0)}
-	curConfig["friend"] = [2]time.Time{time.Now().Round(0),
-		time.Now().Add(10 * time.Second).Round(0)}
-	curConfig["leave"] = [2]time.Time{time.Now().Round(0),
-		time.Now().Add(3 * time.Hour).Round(0)}
-
-	err := WriteConfig(curConfig)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	readConfig, err := ReadConfig()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if !reflect.DeepEqual(curConfig, readConfig) {
-		t.Fatalf("the config data written and the data read don't match up: expected %q, got %q", curConfig, readConfig)
-	}
-
-	// clean up
-	err = os.Remove(configFile)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-// Tests reading and writing of the config file, if we use invalid data.
-func Test_readWriteConfig_InvalidData(t *testing.T) {
-	invalidConfig := make(map[string][2]time.Time)
-
-	invalidConfig["lol"] = [2]time.Time{time.Now().Add(1 * time.Second), time.Now()}
-
-	err := WriteConfig(invalidConfig)
-	if err == nil {
-		t.Fatal("expected error on invalid config data, but no error was returned")
-	}
-}
 
 // Tests fetching all the private key files in ~/.ssh/.
 func Test_getAllKeys(t *testing.T) {

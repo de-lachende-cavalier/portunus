@@ -6,8 +6,6 @@ import (
 )
 
 // Wrapper around ssh-keygen, generates private/public key pair with the given password.
-//
-// N.B.: It is imperative that the file identified by path doesn't exist prior to calling this function!
 func genKeyPair(cipher string, passwd string, path string) error {
 	// XXX the number of rounds was set to a mostly arbitrary value (i tested a
 	// XXX bunch of them and found that 50 is reasonably fast)
