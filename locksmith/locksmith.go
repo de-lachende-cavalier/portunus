@@ -14,6 +14,9 @@ func RotateKeys(expiredPaths []string, cipher string, passwd string) (map[string
 	updatedData := make(map[string]time.Time)
 	var err error
 
+	// TODO make sure to properly check that the files have been deleted
+	// => they absolutely need to be for genKeyPair()
+	// => write a quick check in librarian/
 	err = librarian.DeleteKeyFiles(expiredPaths)
 	if err != nil {
 		return nil, err
@@ -22,8 +25,8 @@ func RotateKeys(expiredPaths []string, cipher string, passwd string) (map[string
 	for _, path := range expiredPaths {
 		updatedData[path] = time.Now() // set creation date
 
-    err := genKeyPair(cipher, passwd, path)
-    if err != nil {
+		err := genKeyPair(cipher, passwd, path)
+		if err != nil {
 			return nil, err
 		}
 	}

@@ -1,13 +1,13 @@
 package locksmith
 
 import (
-	"os/exec"
 	"errors"
+	"os/exec"
 )
 
 // Wrapper around ssh-keygen, generates private/public key pair with the given password.
 //
-// N.B.: It is imperative that the file identified by path doesn't exist!
+// N.B.: It is imperative that the file identified by path doesn't exist prior to calling this function!
 func genKeyPair(cipher string, passwd string, path string) error {
 	// XXX the number of rounds was set to a mostly arbitrary value (i tested a
 	// XXX bunch of them and found that 50 is reasonably fast)
@@ -26,5 +26,5 @@ func genKeyPair(cipher string, passwd string, path string) error {
 
 // Helper function, to separate command execution from the definition of the various flags.
 func execCommand(args ...string) error {
-    return exec.Command("ssh-keygen", args...).Run()
+	return exec.Command("ssh-keygen", args...).Run()
 }
