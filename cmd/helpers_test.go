@@ -88,7 +88,7 @@ func Test_getCompleteConfig(t *testing.T) {
 	}
 }
 
-// Tests the building of paths from file names.
+// Tests the building of absolute paths from file names.
 func Test_buildPaths(t *testing.T) {
 	home, _ := os.UserHomeDir()
 	ssh := "/.ssh/"

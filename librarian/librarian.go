@@ -20,7 +20,6 @@ func GetAllKeys() ([]string, error) {
 			strings.HasPrefix(s, ".") {
 			return false
 		}
-
 		return true
 	}
 

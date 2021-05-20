@@ -75,7 +75,7 @@ func Test_rotateCmd_RSA(t *testing.T) {
 	}
 }
 
-// Tests key renewal for Ed25519
+// Tests key renewal for Ed25519.
 func Test_rotateCmd_Ed25519(t *testing.T) {
 	confPath := os.Getenv("HOME") + "/.portunus_data.gob"
 

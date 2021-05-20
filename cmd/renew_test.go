@@ -52,6 +52,7 @@ func Test_renewCmd(t *testing.T) {
 		}
 	}
 
+	// cleanup
 	err = cleanupTestConfig()
 	if err != nil {
 		t.Fatal(err)
