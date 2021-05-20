@@ -247,6 +247,3 @@ func Test_deleteKeyFiles_NoPairing(t *testing.T) {
 	}
 	os.Remove(path)
 }
-
-// No need to check writePubKey and writePrivKey seeing as they're fundamentally
-// wrappers around std Go functions (which are probably thouroughly tested alreay)

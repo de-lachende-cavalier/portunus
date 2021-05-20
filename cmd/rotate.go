@@ -12,13 +12,13 @@ import (
 func init() {
 	rootCmd.AddCommand(rotateCmd)
 
-	rotateCmd.Flags().StringP("cipher", "c", "ed25519", 
+	rotateCmd.Flags().StringP("cipher", "c", "ed25519",
 		"Choose which cipher to use for key generation (default is Ed25519)")
 	rotateCmd.Flags().StringP("time", "t", "",
 		"Specify for how much longer they key should be valid (format: -t <int><specifier>, where specifier is either s (seconds), m (minutes), h (hours) or d (days)")
 	rotateCmd.Flags().StringP("password", "p", "",
 		"Specifies the password to use with ssh-keygen (NOTE: this password is used for ALL the keys that are rotates, a compromise between security and user friendliness)")
-	rotateCmd.Flags().StringSliceP("subset", "s", []string{}, 
+	rotateCmd.Flags().StringSliceP("subset", "s", []string{},
 		"Specify the subset of keys you want to act on")
 
 	rotateCmd.MarkFlagRequired("time")

@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"io/ioutil"
 	"bytes"
-	"os"
-	"time"
-	s "strings"
 	"fmt"
+	"io/ioutil"
+	"os"
+	s "strings"
 	"testing"
+	"time"
 
 	"github.com/mowzhja/portunus/librarian"
 )
@@ -42,7 +42,7 @@ func Test_rotateCmd_RSA(t *testing.T) {
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
-	cmd.SetArgs([]string{"rotate", "-t", "30m", "-c", "rsa"})
+	cmd.SetArgs([]string{"rotate", "-t", "30m", "-c", "rsa", "-p", "cmd_rsa"})
 
 	err := cmd.Execute()
 	if err != nil {
@@ -56,10 +56,10 @@ func Test_rotateCmd_RSA(t *testing.T) {
 
 	for keyFile, times := range rotatedConf {
 		// test times
-		if times[0].Add(30 * time.Minute) != times[1] {
-			t.Fatalf("wrong expiration time: expected %q, got %q", 
-			times[0].Add(30 * time.Minute),
-			times[1])
+		if times[0].Add(30*time.Minute) != times[1] {
+			t.Fatalf("wrong expiration time: expected %q, got %q",
+				times[0].Add(30*time.Minute),
+				times[1])
 		}
 
 		// test cipher
@@ -88,7 +88,7 @@ func Test_rotateCmd_Ed25519(t *testing.T) {
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
-	cmd.SetArgs([]string{"rotate", "-t", "30m", "-c", "ed25519"})
+	cmd.SetArgs([]string{"rotate", "-t", "30m", "-c", "ed25519", "-p", "cmd_ed25519"})
 
 	err := cmd.Execute()
 	if err != nil {
@@ -102,15 +102,15 @@ func Test_rotateCmd_Ed25519(t *testing.T) {
 
 	for keyFile, times := range rotatedConf {
 		// test times
-		if times[0].Add(30 * time.Minute) != times[1] {
-			t.Fatalf("wrong expiration time: expected %q, got %q", 
-			times[0].Add(30 * time.Minute),
-			times[1])
+		if times[0].Add(30*time.Minute) != times[1] {
+			t.Fatalf("wrong expiration time: expected %q, got %q",
+				times[0].Add(30*time.Minute),
+				times[1])
 		}
 
 		// test cipher
 		if !usedCorrectCipher(keyFile, "ed25519") {
-			t.Fatal("rotate used the wrong cipher (was supposed to be rsa)")
+			t.Fatal("rotate used the wrong cipher (was supposed to be ed25519)")
 		}
 	}
 
