@@ -18,7 +18,7 @@ func Test_getAllKeys(t *testing.T) {
 	}
 	prefix += "/.ssh/"
 
-	names := []string{"no", "no.pub", "authorized_keys", ".dontreadme", "yes", "yes.pub"}
+	names := []string{"no", "no.pub", "yes", "yes.pub"}
 	for _, name := range names {
 		paths = append(paths, prefix+name)
 	}
@@ -37,9 +37,7 @@ func Test_getAllKeys(t *testing.T) {
 
 	count := 0
 	for _, rp := range readPaths {
-		if s.Contains(rp, "authorized_keys") || s.Contains(rp, ".dontreadme") {
-			t.Fatalf("unexpected file has been read: %s", rp)
-		} else if s.Contains(rp, "no") || s.Contains(rp, "yes") {
+		if !s.Contains(rp, "id_ed25") && (s.Contains(rp, "no") || s.Contains(rp, "yes")) {
 			count += 1
 		}
 
@@ -50,12 +48,15 @@ func Test_getAllKeys(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			os.Remove(rp + ".pub") // remove the pub keys as well, throw away errors
+			err = os.Remove(rp + ".pub") // remove the pub keys as well
+			if err != nil {
+				t.Fatal(err)
+			}
 		}
 	}
 
-	if count < 2 {
-		t.Fatalf("expected both no and yes to be among the paths returned, got %s", readPaths)
+	if count != 2 {
+		t.Fatalf("error getting all keys: expected 2 valid files, got %d", count)
 	}
 }
 
@@ -91,20 +92,18 @@ func Test_getAllKeys_Invalid(t *testing.T) {
 		if !s.Contains(rp, "id_ed25") {
 			count += 1
 		}
-
-		// clean up
-		if !s.Contains(rp, "id_ed25") {
-			err := os.Remove(rp)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			os.Remove(rp + ".pub") // remove the pub keys as well, throw away errors
-		}
 	}
 
 	if count > 0 {
-		t.Fatalf("error getting all invalid keys: expected 0 valid files, got %d", count)
+		t.Fatalf("error getting all keys: expected 0 valid files, got %d", count)
+	}
+
+	// cleanup
+	for _, path := range paths {
+		err := os.Remove(path)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
