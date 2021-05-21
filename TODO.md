@@ -7,7 +7,7 @@
 - [x] Test, test, test (tests should be written as you write the code, but just make sure everything works well in this phase)
     - [x] Complete writing unit tests
     - [x] Write integration tests/test Cobra commands
-    - [ ] Check test coverage (there may be some special cases you missed)
+    - [x] Check test coverage (there may be some special cases you missed)
 - [x] Fix the monotonic clock reading problem (use .Round(0) when writing times to files, check the librarian_test.go)
 - [x] Throw away Go key generation => automate ssh-keygen!
     - [x] Fix the broken tests in cmd/ and locksmith/

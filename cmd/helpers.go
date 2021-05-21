@@ -97,9 +97,9 @@ func writeTestConfig() (map[string][2]time.Time, error) {
 	curConfig["hello"] = [2]time.Time{time.Now().Round(0),
 		time.Now().Add(1 * time.Second).Round(0)}
 	curConfig["friend"] = [2]time.Time{time.Now().Round(0),
-		time.Now().Add(22 * time.Hour).Round(0)}
+		time.Now().Add(5 * time.Second).Round(0)}
 	curConfig["leave"] = [2]time.Time{time.Now().Round(0),
-		time.Now().Add(3 * time.Minute).Round(0)}
+		time.Now().Add(4 * time.Second).Round(0)}
 
 	err = librarian.WriteConfig(curConfig)
 	if err != nil {

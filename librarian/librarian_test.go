@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-// Tests fetching all the private key files in ~/.ssh/.
+// Tests fetching of all the private key files in ~/.ssh/.
 func Test_getAllKeys(t *testing.T) {
 	var paths []string
 
@@ -59,8 +59,127 @@ func Test_getAllKeys(t *testing.T) {
 	}
 }
 
+// Tests fetching with invalid patterns in ~/.ssh/
+func Test_getAllKeys_Invalid(t *testing.T) {
+	var paths []string
+
+	prefix, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	prefix += "/.ssh/"
+
+	names := []string{"authorized_keys", "known_hosts", ".dontreadme", "config_stuff", "justpub.pub"}
+	for _, name := range names {
+		paths = append(paths, prefix+name)
+	}
+
+	for _, path := range paths {
+		_, err := os.Create(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	readPaths, err := GetAllKeys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count := 0
+	for _, rp := range readPaths {
+		if !s.Contains(rp, "id_ed25") {
+			count += 1
+		}
+
+		// clean up
+		if !s.Contains(rp, "id_ed25") {
+			err := os.Remove(rp)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			os.Remove(rp + ".pub") // remove the pub keys as well, throw away errors
+		}
+	}
+
+	if count > 0 {
+		t.Fatalf("error getting all invalid keys: expected 0 valid files, got %d", count)
+	}
+}
+
 // Tests the fetching of expired keys.
-func Test_getExpiredKeys(t *testing.T) {
+func Test_getExpiredKeys_AllExpired(t *testing.T) {
+	curConfig := make(map[string][2]time.Time)
+
+	curConfig["hello"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(1 * time.Second).Round(0)}
+	curConfig["friend"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(3 * time.Second).Round(0)}
+	curConfig["leave"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(2 * time.Millisecond).Round(0)}
+
+	err := WriteConfig(curConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// all keys should expire
+	time.Sleep(5 * time.Second)
+
+	expired, err := GetExpiredKeys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(expired) != 3 {
+		t.Fatalf("wrong length for returned array: expected 3, got %d", len(expired))
+	}
+
+	// clean up
+	err = os.Remove(configFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Tests the fetching of expired keys, when non are expired.
+func Test_getExpiredKeys_NoneExpired(t *testing.T) {
+	curConfig := make(map[string][2]time.Time)
+
+	curConfig["hello"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(10 * time.Second).Round(0)}
+	curConfig["friend"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(22 * time.Hour).Round(0)}
+	curConfig["leave"] = [2]time.Time{time.Now().Round(0),
+		time.Now().Add(2 * time.Minute).Round(0)}
+
+	err := WriteConfig(curConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// no key will expire in this short an interval
+	time.Sleep(2 * time.Second)
+
+	expired, err := GetExpiredKeys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(expired) > 0 {
+		t.Fatalf("wrong length for returned array: expected 0, got %d", len(expired))
+	}
+
+	// clean up
+	err = os.Remove(configFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Tests the fetching of expired keys, when only some are expired.
+func Test_getExpiredKeys_SomeExpired(t *testing.T) {
 	curConfig := make(map[string][2]time.Time)
 
 	curConfig["hello"] = [2]time.Time{time.Now().Round(0),
@@ -128,9 +247,26 @@ func Test_deleteKeyFiles_NonExisting(t *testing.T) {
 	}
 }
 
-// Tests deletion of key files where we either only have a private key file or
-// only a public key file.
-func Test_deleteKeyFiles_NoPairing(t *testing.T) {
+// Test deletion of files with only the public key file available.
+func Test_deleteKeyFiles_NoPairing_OnlyPub(t *testing.T) {
+	var testPaths []string
+
+	path := "/tmp/onlypublic.pub"
+	_, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	testPaths = append(testPaths, path)
+
+	err = DeleteKeyFiles(testPaths)
+	if err == nil {
+		t.Fatal("error should not be nil when deleteKeyFiles() is called one a single public key file without corresponding private key file")
+	}
+	os.Remove(path)
+}
+
+// Test deletion of files with only the private key file available.
+func Test_deleteKeyFiles_NoPairing_OnlyPriv(t *testing.T) {
 	var testPaths []string
 
 	path := "/tmp/onlyprivate"
@@ -147,17 +283,4 @@ func Test_deleteKeyFiles_NoPairing(t *testing.T) {
 	os.Remove(path)
 
 	testPaths = nil // reset testPaths
-
-	path = "/tmp/onlypublic.pub"
-	_, err = os.Create(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	testPaths = append(testPaths, path)
-
-	err = DeleteKeyFiles(testPaths)
-	if err == nil {
-		t.Fatal("error should not be nil when deleteKeyFiles() is called one a single public key file without corresponding private key file")
-	}
-	os.Remove(path)
 }

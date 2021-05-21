@@ -32,4 +32,6 @@ func runCheckCmd(cmd *cobra.Command, args []string) {
 		fmt.Println("Either renew or rotate them!")
 		return
 	}
+
+	fmt.Println("The keys are still fresh!")
 }
