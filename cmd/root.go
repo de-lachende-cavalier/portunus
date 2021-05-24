@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"fmt"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -15,7 +16,7 @@ func init() {
 
 	curConfig, err := librarian.ReadConfig()
 	if err != nil {
-		// config file either doesn't exist or is empty => no need to check anything
+		fmt.Printf("[+] Config file either missing or empty.\n")
 		return
 	}
 

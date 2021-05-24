@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -38,6 +39,8 @@ var rotateCmd = &cobra.Command{
 
 // Helper function to use instead of the default anonymous function associated with Command.Run().
 func runRotateCmd(cmd *cobra.Command, args []string) {
+	fmt.Printf("[+] Rotating keys...\n")
+
 	var paths []string
 
 	configData := make(map[string][2]time.Time)
@@ -70,4 +73,6 @@ func runRotateCmd(cmd *cobra.Command, args []string) {
 	configData = getCompleteConfig(partialData, delta_i)
 	err = librarian.WriteConfig(configData)
 	handleErr(err)
+
+	fmt.Printf("[+] The keys have been succesfully rotated.\n")
 }

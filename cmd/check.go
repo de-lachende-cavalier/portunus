@@ -23,15 +23,17 @@ var checkCmd = &cobra.Command{
 
 // Helper function to use instead of the default anonymous function associated with Command.Run().
 func runCheckCmd(cmd *cobra.Command, args []string) {
+	fmt.Printf("[+] Checking for expired keys...\n")
+
 	expiredPaths, err := librarian.GetExpiredKeys()
 	handleErr(err)
 
 	if len(expiredPaths) > 0 {
 		// we have expired keys
-		fmt.Println("The following keys have expired:", expiredPaths)
-		fmt.Println("Either renew or rotate them!")
+		fmt.Printf("[+] The following keys have expired: \n\t%s\n", expiredPaths)
+		fmt.Printf("[+] Either renew or rotate them!\n")
 		return
 	}
 
-	fmt.Println("The keys are still fresh!")
+	fmt.Printf("[+] The keys are still fresh!\n")
 }

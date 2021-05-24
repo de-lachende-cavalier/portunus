@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 	sc "strconv"
@@ -56,6 +56,7 @@ func getCompleteConfig(partialConfig map[string]time.Time, expirationDelta int) 
 		times[1] = creationTime.Add(time.Second * time.Duration(expirationDelta)).Round(0) // expiration time
 
 		completeConfig[keyFile] = times
+		fmt.Printf("\t[+] %s rotated, expiration date: %s\n", keyFile, times[1])
 	}
 
 	return completeConfig

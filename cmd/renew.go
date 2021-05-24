@@ -28,6 +28,8 @@ var renewCmd = &cobra.Command{
 
 // Helper function to use instead of the default anonymous function associated with Command.Run().
 func runRenewCmd(cmd *cobra.Command, args []string) {
+	fmt.Printf("[+] Renewing keys...\n")
+
 	expData := make(map[string][2]time.Time)
 
 	oldData, err := librarian.ReadConfig()
@@ -44,10 +46,11 @@ func runRenewCmd(cmd *cobra.Command, args []string) {
 		n_times[1] = times[1].Add(time.Second * time.Duration(delta_i)).Round(0)
 
 		expData[keyFile] = n_times
+		fmt.Printf("\t[+] %s renewed, new expiration date: %s\n", keyFile, n_times[1])
 	}
 
 	err = librarian.WriteConfig(expData)
 	handleErr(err)
 
-	fmt.Println("The keys have been succesfully renewed")
+	fmt.Printf("[+] The keys have been succesfully renewed.\n")
 }
