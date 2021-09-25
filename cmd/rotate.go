@@ -14,7 +14,7 @@ func init() {
 	rootCmd.AddCommand(rotateCmd)
 
 	rotateCmd.Flags().StringP("cipher", "c", "ed25519",
-		"Choose which cipher to use for key generation (default is Ed25519)")
+		"Choose which cipher to use for key generation")
 	rotateCmd.Flags().StringP("time", "t", "",
 		"Specify for how much longer they key should be valid (format: -t <int><specifier>, where specifier is either s (seconds), m (minutes), h (hours) or d (days)")
 	rotateCmd.Flags().StringP("password", "p", "",
