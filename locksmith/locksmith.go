@@ -1,5 +1,4 @@
-// Package locksmith is responsible of all the functionality associated with SSH keys (creating new ones,
-// writing them to the correct location and with the correct encoding, etc.)
+// Package locksmith is responsible of all the functionality associated with SSH keys (creating new ones, writing them to the correct location and with the correct encoding, etc.)
 package locksmith
 
 import (
@@ -8,13 +7,11 @@ import (
 	"github.com/mowzhja/portunus/librarian"
 )
 
-// Changes keys, deleting the old ones and substituting them with new ones (the names associated
-// with the various key files are kept the same).
+// Changes keys, deleting the old ones and substituting them with new ones (the names associated with the various key files are kept the same).
 func RotateKeys(expiredPaths []string, cipher string, passwd string) (map[string]time.Time, error) {
 	updatedData := make(map[string]time.Time)
-	var err error
 
-	err = librarian.DeleteKeyFiles(expiredPaths)
+	err := librarian.DeleteKeyFiles(expiredPaths)
 	if err != nil {
 		return nil, err
 	}

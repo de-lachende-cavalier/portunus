@@ -15,10 +15,8 @@ func init() {
 var checkCmd = &cobra.Command{
 	Use:   "check",
 	Short: "checks ~/.ssh/ for expired keys",
-	Long: `This is the command that portunus should be run with then put
-  in your bashrc/zshrc, etc. It checks whether you have expired keys by
-  examining portunus' config file and notifies you of them`,
-	Run: runCheckCmd,
+	Long:  `This is the command that portunus should be run with when put in your bashrc/zshrc. It checks whether you have expired keys by examining portunus' config file and notifies you.`,
+	Run:   runCheckCmd,
 }
 
 // Helper function to use instead of the default anonymous function associated with Command.Run().

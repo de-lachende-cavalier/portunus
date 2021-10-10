@@ -7,8 +7,6 @@ import (
 
 // Wrapper around ssh-keygen, generates private/public key pair with the given password.
 func genKeyPair(cipher string, passwd string, path string) error {
-	// XXX the number of rounds was set to a mostly arbitrary value (i tested a
-	// XXX bunch of them and found that 50 is reasonably fast)
 	args := []string{"-q", "-t", cipher, "-N", passwd, "-f", path, "-a", "50"}
 
 	switch cipher {
@@ -18,7 +16,7 @@ func genKeyPair(cipher string, passwd string, path string) error {
 	case "ed25519":
 		return execCommand(args...)
 	default:
-		return errors.New("Cipher not supported.")
+		return errors.New("cipher not supported")
 	}
 }
 

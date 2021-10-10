@@ -15,6 +15,9 @@ func Test_RotateKeys_RSA(t *testing.T) {
 
 	beforeCreation := time.Now()
 	upData, err := RotateKeys(paths, "rsa", passwd)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// check that the files have been correctly recreated after deletion
 	err = checkPathsExist(paths)
@@ -47,6 +50,9 @@ func Test_RotateKeys_Ed25519(t *testing.T) {
 
 	beforeCreation := time.Now()
 	upData, err := RotateKeys(paths, "ed25519", passwd)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// check that the files have been correctly recreated after deletion
 	err = checkPathsExist(paths)

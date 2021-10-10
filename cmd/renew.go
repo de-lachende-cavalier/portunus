@@ -20,10 +20,9 @@ func init() {
 
 var renewCmd = &cobra.Command{
 	Use:   "renew",
-	Short: "renews the expiry on all the tracked keys",
-	Long: `There's no need to specify which keys
-  to renew: it automatically renews all the ones it tracks.`,
-	Run: runRenewCmd,
+	Short: "renews the expiry time on all the tracked keys",
+	Long:  `There's no need to specify which keys to renew: it automatically renews all the ones it tracks.`,
+	Run:   runRenewCmd,
 }
 
 // Helper function to use instead of the default anonymous function associated with Command.Run().

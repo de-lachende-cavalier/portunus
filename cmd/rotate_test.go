@@ -22,11 +22,7 @@ func usedCorrectCipher(keyFile string, cipher string) bool {
 	text := string(bytes)
 
 	// ssh-<cipher> ...
-	if s.Contains(text, "ssh-"+cipher) {
-		return true
-	}
-
-	return false
+	return s.Contains(text, "ssh-"+cipher)
 }
 
 // Tests key renewal for RSA.

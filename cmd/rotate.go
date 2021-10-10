@@ -30,11 +30,8 @@ func init() {
 var rotateCmd = &cobra.Command{
 	Use:   "rotate",
 	Short: "rotate the SSH keys",
-	Long: `If called without any flags, this command rotates ALL the keys in ~/.ssh/. 
-  By 'rotates' I mean that the old keys are deleted and new ones are created (with the
-  same name as the old ones), with new expiration dates. Once that's done, these keys
-	are tracked for as long as they exist.`,
-	Run: runRotateCmd,
+	Long:  `If called without any flags, this command rotates ALL the keys in ~/.ssh/. By 'rotates' I mean that the old keys are deleted and new ones are created (with the same name as the old ones), with new expiration dates. Once that's done, these keys are tracked for as long as they exist.`,
+	Run:   runRotateCmd,
 }
 
 // Helper function to use instead of the default anonymous function associated with Command.Run().

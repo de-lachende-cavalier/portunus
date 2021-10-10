@@ -113,7 +113,7 @@ func Test_genKeyPair_Ed25519(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(pubKey, pubSign) {
-			t.Fatal("the public key derived from the private on and the one read from the public key file don't match")
+			t.Fatal("the public key derived from the private one and the one read from the public key file don't match")
 		}
 	}
 
