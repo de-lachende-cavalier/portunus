@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/spf13/cobra"
 
@@ -23,7 +22,6 @@ func init() {
 		"Specify the subset of keys you want to act on")
 
 	rotateCmd.MarkFlagRequired("time")
-	rotateCmd.MarkFlagRequired("cipher")
 	rotateCmd.MarkFlagRequired("password")
 }
 
@@ -39,9 +37,6 @@ func runRotateCmd(cmd *cobra.Command, args []string) {
 	fmt.Printf("[+] Rotating keys...\n")
 
 	var paths []string
-
-	configData := make(map[string][2]time.Time)
-	partialData := make(map[string]time.Time)
 
 	cipher, err := cmd.Flags().GetString("cipher")
 	handleErr(err)
@@ -64,10 +59,10 @@ func runRotateCmd(cmd *cobra.Command, args []string) {
 		handleErr(err)
 	}
 
-	partialData, err = locksmith.RotateKeys(paths, cipher, passwd)
+	partialData, err := locksmith.RotateKeys(paths, cipher, passwd)
 	handleErr(err)
 
-	configData = getCompleteConfig(partialData, delta_i)
+	configData := getCompleteConfig(partialData, delta_i)
 	err = librarian.WriteConfig(configData)
 	handleErr(err)
 
