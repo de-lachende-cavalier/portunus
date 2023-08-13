@@ -1,4 +1,4 @@
-# About
+# portunus
 
 portunus is a CLI utility for managing the expiration of ssh keys, written in Go.
 To use it as intended, it should be built and then run with the correct CLI flags directly from your ~/.bashrc (or equivalent) file.
