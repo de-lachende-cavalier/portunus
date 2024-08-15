@@ -33,7 +33,7 @@ Replace `/path/to/portunus` with the actual path to your built binary, and `[fla
 
 ## About the Name
 
-[Portunus](https://en.wikipedia.org/wiki/Portunus_(mythology)) was the Roman god of keys, doors, and livestock. Our project borrows the name for its association with keys and security.
+[Portunus](https://en.wikipedia.org/wiki/Portunus_(mythology)) was the Roman god of keys, doors, and livestock.
 
 ## Useful references
 
