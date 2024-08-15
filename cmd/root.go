@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mowzhja/portunus/librarian"
+	"github.com/de-lachende-cavalier/portunus/librarian"
 )
 
 // Check the integrity of the config file each time portunus is called.

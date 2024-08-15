@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mowzhja/portunus/librarian"
+	"github.com/de-lachende-cavalier/portunus/librarian"
 )
 
 // Tests key renewal.

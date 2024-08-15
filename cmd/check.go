@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mowzhja/portunus/librarian"
+	"github.com/de-lachende-cavalier/portunus/librarian"
 )
 
 func init() {

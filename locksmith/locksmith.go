@@ -4,7 +4,7 @@ package locksmith
 import (
 	"time"
 
-	"github.com/mowzhja/portunus/librarian"
+	"github.com/de-lachende-cavalier/portunus/librarian"
 )
 
 // Changes keys, deleting the old ones and substituting them with new ones (the names associated with the various key files are kept the same).

@@ -1,15 +1,15 @@
 package cmd
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	sc "strconv"
 	s "strings"
 	"time"
 
-	"github.com/mowzhja/portunus/librarian"
+	"github.com/de-lachende-cavalier/portunus/librarian"
 )
 
 // Parses the time spec given by the user and return the number of seconds corresponding to it.

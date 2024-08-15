@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mowzhja/portunus/librarian"
+	"github.com/de-lachende-cavalier/portunus/librarian"
 )
 
 // Helper function, check whether the correct cipher has been used in overwriting the keys.
