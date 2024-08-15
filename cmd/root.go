@@ -34,8 +34,8 @@ func init() {
 
 var rootCmd = &cobra.Command{
 	Use:   "portunus",
-	Short: "portunus is a utility for managing SSH keys expiration",
-	Long:  `portunus acts as middleware, handling the keys for you without the need for ssh-keygen and keeping track of their expiration dates (as specified by you), which ssh-keygen cannot do. Once the keys have expired, portunus will notify you and prompt to either rotate them (delete the old ones and make new ones) or to renew them (delay their expiration by some amount you specify).`,
+	Short: "portunus is a simple utility for managing SSH key expiration",
+	Long:  `portunus acts as middleware, handling the keys for you through ssh-keygen and keeping track of their specified expiration dates, which ssh-keygen cannot do. Once the keys have expired, portunus will prompt you to either rotate them (delete the old ones and make new ones) or to renew them (postpone their expiration date by some specified amount).`,
 	Run: func(cmd *cobra.Command, args []string) {
 	},
 }

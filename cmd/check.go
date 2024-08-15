@@ -14,7 +14,7 @@ func init() {
 
 var checkCmd = &cobra.Command{
 	Use:   "check",
-	Short: "checks ~/.ssh/ for expired keys",
+	Short: "checks ~/.ssh for expired keys",
 	Long:  `This is the command that portunus should be run with when put in your bashrc/zshrc. It checks whether you have expired keys by examining portunus' config file and notifies you.`,
 	Run:   runCheckCmd,
 }
@@ -29,7 +29,7 @@ func runCheckCmd(cmd *cobra.Command, args []string) {
 	if len(expiredPaths) > 0 {
 		// we have expired keys
 		fmt.Printf("[+] The following keys have expired: \n\t%s\n", expiredPaths)
-		fmt.Printf("[+] Either renew or rotate them!\n")
+		fmt.Printf("[+] Either renew or rotate them.\n")
 		return
 	}
 

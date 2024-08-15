@@ -13,7 +13,7 @@ func init() {
 	rootCmd.AddCommand(renewCmd)
 
 	renewCmd.Flags().StringP("time", "t", "",
-		"Specify for how much longer they key should be valid (format: -t <int><specifier>, where specifier is either s (seconds), m (minutes), h (hours) or d (days)")
+		"specifies for how much longer they key should be valid (format: -t <int><specifier>, where specifier is either s (seconds), m (minutes), h (hours) or d (days)")
 
 	renewCmd.MarkFlagRequired("time")
 }
@@ -21,7 +21,7 @@ func init() {
 var renewCmd = &cobra.Command{
 	Use:   "renew",
 	Short: "renews the expiry time on all the tracked keys",
-	Long:  `There's no need to specify which keys to renew: it automatically renews all the ones it tracks.`,
+	Long:  `There's no need to specify which keys to renew: it automatically renews all the ones it tracks (i.e., all the ones in your ~/.ssh directory).`,
 	Run:   runRenewCmd,
 }
 

@@ -13,13 +13,13 @@ func init() {
 	rootCmd.AddCommand(rotateCmd)
 
 	rotateCmd.Flags().StringP("cipher", "c", "ed25519",
-		"Choose which cipher to use for key generation")
+		"specifies which cipher to use for key generation")
 	rotateCmd.Flags().StringP("time", "t", "",
-		"Specify for how much longer they key should be valid (format: -t <int><specifier>, where specifier is either s (seconds), m (minutes), h (hours) or d (days)")
+		"specifies for how much longer they key should be valid (format: -t <int><specifier>, where specifier is either s (seconds), m (minutes), h (hours) or d (days)")
 	rotateCmd.Flags().StringP("password", "p", "",
-		"Specifies the password to use with ssh-keygen (NOTE: this password is used for ALL the keys that are rotated, a compromise between security and user friendliness)")
+		"specifies the password to use with ssh-keygen (NOTE: this password is used for ALL the keys that are rotated, a compromise between security and user friendliness)")
 	rotateCmd.Flags().StringSliceP("subset", "s", []string{},
-		"Specify the subset of keys you want to act on")
+		"specifies the subset of keys you want to act on (if empty, acts on all keys in ~/.ssh)")
 
 	rotateCmd.MarkFlagRequired("time")
 	rotateCmd.MarkFlagRequired("password")
@@ -27,7 +27,7 @@ func init() {
 
 var rotateCmd = &cobra.Command{
 	Use:   "rotate",
-	Short: "rotate the SSH keys",
+	Short: "rotates the SSH keys",
 	Long:  `If called without any flags, this command rotates ALL the keys in ~/.ssh/. By 'rotates' I mean that the old keys are deleted and new ones are created (with the same name as the old ones), with new expiration dates. Once that's done, these keys are tracked for as long as they exist.`,
 	Run:   runRotateCmd,
 }
