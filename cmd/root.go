@@ -16,7 +16,7 @@ func init() {
 
 	curConfig, err := librarian.ReadConfig()
 	if err != nil {
-		fmt.Printf("[+] Config file either missing or empty.\n")
+		fmt.Printf("[+] Config file either missing or empty. Did you run `portunus rotate`?\n")
 		return
 	}
 
