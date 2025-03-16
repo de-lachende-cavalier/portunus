@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 
-	"github.com/de-lachende-cavalier/portunus/librarian"
+	"github.com/de-lachende-cavalier/portunus/pkg/logger"
 )
 
 func init() {
@@ -14,24 +15,42 @@ func init() {
 
 var checkCmd = &cobra.Command{
 	Use:   "check",
-	Short: "checks ~/.ssh for expired keys",
-	Long:  `This is the command that portunus should be run with when put in your bashrc/zshrc. It checks whether you have expired keys by examining portunus' config file and notifies you.`,
+	Short: "Check for expired SSH keys",
+	Long:  `Check if any SSH keys have expired and need to be rotated or renewed.`,
 	Run:   runCheckCmd,
 }
 
-// Helper function to use instead of the default anonymous function associated with Command.Run().
+// runCheckCmd checks for expired SSH keys
 func runCheckCmd(cmd *cobra.Command, args []string) {
-	fmt.Printf("[+] Checking for expired keys...\n")
+	logger.Info("Checking for expired keys...")
 
-	expiredPaths, err := librarian.GetExpiredKeys()
-	handleErr(err)
+	// Get expired keys from config
+	expiredKeys := appConfig.GetExpiredKeys()
 
-	if len(expiredPaths) > 0 {
-		// we have expired keys
-		fmt.Printf("[+] The following keys have expired: \n\t%s\n", expiredPaths)
-		fmt.Printf("[+] Either renew or rotate them.\n")
+	if len(expiredKeys) == 0 {
+		logger.Info("No expired keys found")
+		fmt.Println("[+] No expired keys found")
 		return
 	}
 
-	fmt.Printf("[+] The keys are still fresh!\n")
+	// Display expired keys
+	logger.Info("The following keys have expired:")
+	fmt.Println("[+] The following keys have expired:")
+
+	for _, key := range expiredKeys {
+		keyConfig, exists := appConfig.Keys[key]
+		if !exists {
+			continue
+		}
+
+		expiredFor := time.Since(keyConfig.ExpiresAt).Round(time.Second)
+		logger.Infof("- %s (expired %s ago)", key, expiredFor)
+		fmt.Printf("\t[+] %s (expired %s ago)\n", key, expiredFor)
+	}
+
+	// Provide instructions
+	fmt.Println("\n[+] To rotate expired keys, run:")
+	fmt.Println("\tportunus rotate -t <duration> -p <password>")
+	fmt.Println("\n[+] To renew expired keys, run:")
+	fmt.Println("\tportunus renew -t <duration>")
 }

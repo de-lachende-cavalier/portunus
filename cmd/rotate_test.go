@@ -1,118 +1,148 @@
 package cmd
 
 import (
-	"bytes"
-	"fmt"
-	"io/ioutil"
+	"context"
 	"os"
-	s "strings"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/de-lachende-cavalier/portunus/librarian"
+	"github.com/de-lachende-cavalier/portunus/pkg/config"
+	"github.com/de-lachende-cavalier/portunus/pkg/testutil"
+	"github.com/spf13/cobra"
 )
 
 // Helper function, check whether the correct cipher has been used in overwriting the keys.
 func usedCorrectCipher(keyFile string, cipher string) bool {
-	bytes, err := ioutil.ReadFile(keyFile + ".pub")
+	bytes, err := os.ReadFile(keyFile + ".pub")
 	if err != nil {
-		fmt.Println(err)
 		return false
 	}
 	text := string(bytes)
 
 	// ssh-<cipher> ...
-	return s.Contains(text, "ssh-"+cipher)
+	return strings.Contains(text, "ssh-"+cipher)
 }
 
-// Tests key renewal for RSA.
-func Test_rotateCmd_RSA(t *testing.T) {
-	confPath := os.Getenv("HOME") + "/.portunus_data.gob"
-
-	if _, err := os.Stat(confPath); err == nil {
-		t.Fatal("config file should not exist at this point")
+// TestRotateCmd_RSA tests key rotation for RSA.
+func TestRotateCmd_RSA(t *testing.T) {
+	// Skip this test if ssh-keygen is not available
+	if _, err := os.Stat("/usr/bin/ssh-keygen"); os.IsNotExist(err) {
+		t.Skip("ssh-keygen not available, skipping test")
 	}
 
-	cmd := rootCmd
+	// Set up test environment
+	tempDir, configPath := setupTestEnvironment(t)
+	sshDir := filepath.Join(tempDir, ".ssh")
 
-	buf := new(bytes.Buffer)
-	cmd.SetOut(buf)
-	cmd.SetErr(buf)
-	cmd.SetArgs([]string{"rotate", "-t", "30m", "-c", "rsa", "-p", "cmd_rsa"})
+	// Create test key files
+	key1, _ := testutil.CreateTestKeyPair(t, sshDir, "id_ed25519")
+	key2, _ := testutil.CreateTestKeyPair(t, sshDir, "id_rsa")
 
-	err := cmd.Execute()
+	// Initialize the config
+	cfgFile = configPath
+	appConfig = &config.Config{
+		Keys: make(map[string]config.KeyConfig),
+	}
+
+	// Set up command flags
+	rotateCipher = "rsa"
+	rotateTime = "30m"
+	rotatePassword = "test"
+	rotateKeySubset = []string{key1, key2}
+
+	// Initialize the context
+	rootContext = context.Background()
+
+	// Create a mock command for testing
+	mockCmd := &cobra.Command{Use: "test"}
+
+	// Run the rotate command
+	runRotateCmd(mockCmd, nil)
+
+	// Check if the config was updated
+	loadedConfig, err := config.Load(configPath)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Failed to load config: %v", err)
 	}
 
-	rotatedConf, err := librarian.ReadConfig()
-	if err != nil {
-		t.Fatal(err)
+	if len(loadedConfig.Keys) != 2 {
+		t.Errorf("Expected 2 keys in config, got %d", len(loadedConfig.Keys))
 	}
 
-	for keyFile, times := range rotatedConf {
-		// test times
-		if times[0].Add(30*time.Minute) != times[1] {
-			t.Fatalf("wrong expiration time: expected %q, got %q",
-				times[0].Add(30*time.Minute),
-				times[1])
+	// Check if the keys are in the config and have correct expiration times
+	for key, keyConfig := range loadedConfig.Keys {
+		// Check expiration time
+		expectedExpiry := keyConfig.CreatedAt.Add(30 * time.Minute)
+		if !keyConfig.ExpiresAt.Equal(expectedExpiry) {
+			t.Errorf("Expected expiration time %v, got %v", expectedExpiry, keyConfig.ExpiresAt)
 		}
 
-		// test cipher
-		if !usedCorrectCipher(keyFile, "rsa") {
-			t.Fatal("rotate used the wrong cipher (was supposed to be rsa)")
+		// Check cipher
+		if !usedCorrectCipher(key, "rsa") {
+			t.Errorf("Expected RSA cipher for key %s", key)
 		}
-	}
-
-	// the config file is created directly by the rotateCmd
-	err = cleanupTestConfig()
-	if err != nil {
-		t.Fatal(err)
 	}
 }
 
-// Tests key renewal for Ed25519.
-func Test_rotateCmd_Ed25519(t *testing.T) {
-	confPath := os.Getenv("HOME") + "/.portunus_data.gob"
-
-	if _, err := os.Stat(confPath); err == nil {
-		t.Fatal("config file should not exist at this point")
+// TestRotateCmd_Ed25519 tests key rotation for Ed25519.
+func TestRotateCmd_Ed25519(t *testing.T) {
+	// Skip this test if ssh-keygen is not available
+	if _, err := os.Stat("/usr/bin/ssh-keygen"); os.IsNotExist(err) {
+		t.Skip("ssh-keygen not available, skipping test")
 	}
 
-	cmd := rootCmd
+	// Set up test environment
+	tempDir, configPath := setupTestEnvironment(t)
+	sshDir := filepath.Join(tempDir, ".ssh")
 
-	buf := new(bytes.Buffer)
-	cmd.SetOut(buf)
-	cmd.SetErr(buf)
-	cmd.SetArgs([]string{"rotate", "-t", "30m", "-c", "ed25519", "-p", "cmd_ed25519"})
+	// Create test key files
+	key1, _ := testutil.CreateTestKeyPair(t, sshDir, "id_ed25519")
+	key2, _ := testutil.CreateTestKeyPair(t, sshDir, "id_rsa")
 
-	err := cmd.Execute()
+	// Initialize the config
+	cfgFile = configPath
+	appConfig = &config.Config{
+		Keys: make(map[string]config.KeyConfig),
+	}
+
+	// Set up command flags
+	rotateCipher = "ed25519"
+	rotateTime = "30m"
+	rotatePassword = "test"
+	rotateKeySubset = []string{key1, key2}
+
+	// Initialize the context
+	rootContext = context.Background()
+
+	// Create a mock command for testing
+	mockCmd := &cobra.Command{Use: "test"}
+
+	// Run the rotate command
+	runRotateCmd(mockCmd, nil)
+
+	// Check if the config was updated
+	loadedConfig, err := config.Load(configPath)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Failed to load config: %v", err)
 	}
 
-	rotatedConf, err := librarian.ReadConfig()
-	if err != nil {
-		t.Fatal(err)
+	if len(loadedConfig.Keys) != 2 {
+		t.Errorf("Expected 2 keys in config, got %d", len(loadedConfig.Keys))
 	}
 
-	for keyFile, times := range rotatedConf {
-		// test times
-		if times[0].Add(30*time.Minute) != times[1] {
-			t.Fatalf("wrong expiration time: expected %q, got %q",
-				times[0].Add(30*time.Minute),
-				times[1])
+	// Check if the keys are in the config and have correct expiration times
+	for key, keyConfig := range loadedConfig.Keys {
+		// Check expiration time
+		expectedExpiry := keyConfig.CreatedAt.Add(30 * time.Minute)
+		if !keyConfig.ExpiresAt.Equal(expectedExpiry) {
+			t.Errorf("Expected expiration time %v, got %v", expectedExpiry, keyConfig.ExpiresAt)
 		}
 
-		// test cipher
-		if !usedCorrectCipher(keyFile, "ed25519") {
-			t.Fatal("rotate used the wrong cipher (was supposed to be ed25519)")
+		// Check cipher
+		if !usedCorrectCipher(key, "ed25519") {
+			t.Errorf("Expected Ed25519 cipher for key %s", key)
 		}
-	}
-
-	// the config file is created directly by the rotateCmd
-	err = cleanupTestConfig()
-	if err != nil {
-		t.Fatal(err)
 	}
 }

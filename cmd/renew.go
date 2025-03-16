@@ -6,50 +6,89 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/de-lachende-cavalier/portunus/librarian"
+	"github.com/de-lachende-cavalier/portunus/pkg/config"
+	"github.com/de-lachende-cavalier/portunus/pkg/logger"
+)
+
+var (
+	renewTime      string
+	renewKeySubset []string
 )
 
 func init() {
 	rootCmd.AddCommand(renewCmd)
 
-	renewCmd.Flags().StringP("time", "t", "",
-		"specifies for how much longer they key should be valid (format: -t <int><specifier>, where specifier is either s (seconds), m (minutes), h (hours) or d (days)")
+	renewCmd.Flags().StringVarP(&renewTime, "time", "t", "",
+		"specifies for how much longer the key should be valid (format: <int><specifier>, where specifier is either s (seconds), m (minutes), h (hours) or d (days)")
+	renewCmd.Flags().StringSliceVarP(&renewKeySubset, "subset", "s", []string{},
+		"specifies the subset of keys you want to act on (if empty, acts on all expired keys)")
 
 	renewCmd.MarkFlagRequired("time")
 }
 
 var renewCmd = &cobra.Command{
 	Use:   "renew",
-	Short: "renews the expiry time on all the tracked keys",
-	Long:  `There's no need to specify which keys to renew: it automatically renews all the ones it tracks (i.e., all the ones in your ~/.ssh directory).`,
+	Short: "Renew expired SSH keys",
+	Long:  `Renew expired SSH keys by extending their expiration date.`,
 	Run:   runRenewCmd,
 }
 
-// Helper function to use instead of the default anonymous function associated with Command.Run().
+// runRenewCmd handles the renewal of SSH keys
 func runRenewCmd(cmd *cobra.Command, args []string) {
-	fmt.Printf("[+] Renewing keys...\n")
+	logger.Info("Renewing keys...")
+	fmt.Println("[+] Renewing keys...")
 
-	expData := make(map[string][2]time.Time)
-
-	oldData, err := librarian.ReadConfig()
-	handleErr(err)
-
-	delta_s, err := cmd.Flags().GetString("time")
-	handleErr(err)
-	delta_i, err := parseTime(delta_s)
-	handleErr(err)
-
-	for keyFile, times := range oldData {
-		n_times := [2]time.Time{}
-		n_times[0] = times[0].Round(0)
-		n_times[1] = times[1].Add(time.Second * time.Duration(delta_i)).Round(0)
-
-		expData[keyFile] = n_times
-		fmt.Printf("\t[+] %s renewed, new expiration date: %s\n", keyFile, n_times[1])
+	// Parse the time duration
+	duration, err := parseDuration(renewTime)
+	if err != nil {
+		logger.Fatal(err, "Failed to parse time duration")
 	}
 
-	err = librarian.WriteConfig(expData)
-	handleErr(err)
+	// Get keys to renew
+	var keysToRenew []string
+	if len(renewKeySubset) > 0 {
+		// Use specified subset of keys
+		keysToRenew = renewKeySubset
+	} else {
+		// Get all expired keys
+		keysToRenew = appConfig.GetExpiredKeys()
+	}
 
-	fmt.Printf("[+] The keys have been succesfully renewed.\n")
+	if len(keysToRenew) == 0 {
+		logger.Info("No keys found to renew")
+		fmt.Println("[+] No keys found to renew")
+		return
+	}
+
+	// Renew keys
+	now := time.Now()
+	renewedCount := 0
+
+	for _, key := range keysToRenew {
+		keyConfig, exists := appConfig.Keys[key]
+		if !exists {
+			logger.Infof("Key not found in configuration: %s", key)
+			fmt.Printf("[+] Key not found in configuration: %s\n", key)
+			continue
+		}
+
+		// Update expiration time by creating a new KeyConfig
+		newKeyConfig := config.KeyConfig{
+			CreatedAt: keyConfig.CreatedAt,
+			ExpiresAt: now.Add(duration),
+		}
+		appConfig.Keys[key] = newKeyConfig
+
+		logger.Infof("Renewed key: %s (new expiration: %s)", key, newKeyConfig.ExpiresAt.Format(time.RFC3339))
+		fmt.Printf("\t[+] %s renewed, new expiration date: %s\n", key, newKeyConfig.ExpiresAt.Format(time.RFC3339))
+		renewedCount++
+	}
+
+	// Save configuration
+	if err := appConfig.Save(cfgFile); err != nil {
+		logger.Fatal(err, "Failed to save configuration")
+	}
+
+	logger.Infof("Successfully renewed %d keys", renewedCount)
+	fmt.Printf("[+] The keys have been successfully renewed\n")
 }
