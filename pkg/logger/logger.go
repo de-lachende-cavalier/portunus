@@ -19,10 +19,10 @@ func Init(level string, pretty bool) {
 		logLevel = zerolog.InfoLevel
 	}
 
-	var output io.Writer = os.Stdout
+	var output io.Writer = os.Stderr
 	if pretty {
 		output = zerolog.ConsoleWriter{
-			Out:        os.Stdout,
+			Out:        os.Stderr,
 			TimeFormat: time.RFC3339,
 		}
 	}
@@ -57,11 +57,11 @@ func Fatal(err error, msg string) {
 }
 
 // Infof logs a formatted info message
-func Infof(format string, v ...interface{}) {
+func Infof(format string, v ...any) {
 	log.Info().Msg(fmt.Sprintf(format, v...))
 }
 
 // Errorf logs a formatted error message
-func Errorf(err error, format string, v ...interface{}) {
+func Errorf(err error, format string, v ...any) {
 	log.Error().Err(err).Msg(fmt.Sprintf(format, v...))
 }
